@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DTswim — школа плавания Дмитрия Тиханенка</title>
+<meta name="description" content="DTswim — школа плавания: расписание со свободными местами, программы на воде и на суше, тренеры, цены. Первое занятие бесплатно.">
+<meta name="theme-color" content="#021526">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700;900&family=Orbitron:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abyss:#021526;
+  --deep:#03213A;
+  --aqua:#4FD1D9;
+  --aqua2:#7FE9F0;
+  --foam:#EAFBFD;
+  --red:#F0483E;
+  --yellow:#FFC531;
+  --card:rgba(3,27,48,.74);
+  --card2:rgba(6,44,72,.6);
+  --line:rgba(127,233,240,.2);
+  --display:"Unbounded","Arial Black",Impact,sans-serif;
+  --body:"Onest","Segoe UI",Roboto,Arial,sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --pad:clamp(18px,5vw,80px);
+  --maxw:1240px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto;overflow-x:clip}
+html.lenis,html.lenis body{height:auto}
+.lenis:not(.lenis-autoToggle).lenis-stopped{overflow:clip}
+.lenis.lenis-smooth iframe{pointer-events:none}
+body{font-family:var(--body);color:var(--foam);background:var(--abyss);font-size:17px;line-height:1.6;overflow-x:hidden;overflow-x:clip;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:3px;border-radius:10px}
+::selection{background:var(--yellow);color:var(--deep)}
+
+/* ---------- вода и затемнение ---------- */
+#water{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;background:radial-gradient(120% 90% at 50% 0%,#0d6d8c 0%,#063a5a 45%,#021526 100%)}
+.no-gl #water{background:radial-gradient(120% 90% at 50% 0%,#0d6d8c 0%,#063a5a 45%,#021526 100%)}
+.shade{position:fixed;inset:0;z-index:1;pointer-events:none;background:
+  radial-gradient(90% 70% at 30% 45%,rgba(2,21,38,.0),rgba(2,21,38,.35)),
+  linear-gradient(180deg,rgba(2,21,38,.45) 0%,rgba(2,21,38,0) 22%,rgba(2,21,38,0) 70%,rgba(2,21,38,.5) 100%)}
+main,.foot{position:relative;z-index:2}
+
+/* ---------- прогресс и шапка ---------- */
+#progress{position:fixed;left:0;right:0;top:0;height:3px;z-index:60;pointer-events:none}
+#progress i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--aqua),var(--yellow));transform-origin:0 50%;transform:scaleX(0)}
+.bar{position:fixed;left:0;right:0;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:16px var(--pad);padding-top:calc(16px + env(safe-area-inset-top,0px));transition:transform .5s var(--ease),background .4s,padding .4s}
+.bar.solid{background:linear-gradient(180deg,rgba(2,21,38,.92),rgba(2,21,38,.66));padding-top:calc(11px + env(safe-area-inset-top,0px));padding-bottom:11px}
+.bar.away{transform:translateY(-110%)}
+.brand{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:-.02em}
+.brand span{color:var(--aqua)}
+.nav{display:flex;gap:6px;align-items:center}
+.nav a{padding:8px 16px;border-radius:999px;font-weight:500;font-size:15px;transition:background .25s,color .25s}
+.nav a:hover{background:rgba(127,233,240,.12)}
+.nav a[aria-current="true"]{background:rgba(127,233,240,.16);color:var(--aqua2)}
+.nav a.cta{background:var(--yellow);color:var(--deep);font-weight:700;margin-left:6px}
+.nav a.cta:hover{background:#fff}
+
+/* боковая «дорожка» — где я на странице */
+.rail{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:18px;padding:6px 0;opacity:0;pointer-events:none;transition:opacity .5s}
+.rail.on{opacity:1;pointer-events:auto}
+.rail::before{content:"";position:absolute;right:5px;top:0;bottom:0;width:2px;background:repeating-linear-gradient(180deg,var(--red) 0 8px,#fff 8px 16px,var(--aqua) 16px 24px);opacity:.35;border-radius:2px}
+.rail a{position:relative;display:block;width:12px;height:12px;margin-left:auto;border-radius:50%;background:rgba(234,251,253,.35);transition:background .3s,transform .3s}
+.rail a span{position:absolute;right:22px;top:50%;transform:translate(8px,-50%);white-space:nowrap;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;background:rgba(2,21,38,.85);padding:4px 10px;border-radius:999px}
+.rail a:hover span,.rail a:focus-visible span{opacity:1;transform:translate(0,-50%)}
+.rail a[aria-current="true"]{background:var(--yellow);transform:scale(1.25)}
+.rail-dot{display:none}
+
+/* ---------- кнопки ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 26px;border-radius:999px;font-weight:600;font-size:16px;line-height:1.2;transition:background .25s,color .25s,border-color .25s,box-shadow .3s;will-change:transform}
+.btn.main{background:var(--yellow);color:var(--deep);box-shadow:0 10px 30px -10px rgba(255,197,49,.65)}
+.btn.main:hover{background:#fff}
+.btn.ghost{border:1.5px solid rgba(234,251,253,.45);color:var(--foam)}
+.btn.ghost:hover{border-color:var(--aqua2);background:rgba(127,233,240,.1)}
+.link{display:inline-block;margin-top:14px;color:var(--aqua2);font-weight:600}
+.chips{display:inline-flex;flex-wrap:wrap;gap:6px;padding:5px;border-radius:999px;background:rgba(2,21,38,.6);border:1px solid var(--line)}
+.chips button{padding:9px 18px;border-radius:999px;font-weight:600;font-size:15px;transition:background .25s,color .25s}
+.chips button em{font-style:normal;font-weight:500;opacity:.6;margin-left:6px;font-size:13px}
+.chips button[aria-pressed="true"],.chips button[aria-selected="true"]{background:var(--aqua);color:var(--deep)}
+.chips button[aria-selected="true"] em{opacity:.75}
+
+/* ---------- общие блоки ---------- */
+.sec,.hero{scroll-margin-top:80px}
+.gate{overflow-x:clip}
+/* следующий раздел поднимается, пока слово «ворот» улетает, — без пустого экрана */
+.sec{position:relative;padding:clamp(48px,8vh,96px) var(--pad);max-width:calc(var(--maxw) + 2 * var(--pad));margin:0 auto}
+.sec-head{max-width:900px;margin-bottom:clamp(24px,4.5vh,44px)}
+/* номер раздела, заголовок из букв и «дорожка» — бывшие «ворота», теперь без лишней прокрутки */
+.sec-num{display:block;font-family:var(--display);font-weight:700;font-size:clamp(.95rem,1.4vw,1.15rem);letter-spacing:.3em;color:var(--yellow);margin-bottom:6px}
+.title.big-t{font-size:clamp(2.6rem,7.6vw,6.6rem);margin-bottom:14px;perspective:700px}
+.title.big-t .split{display:inline}
+.rope{display:block;width:min(52vw,420px);height:8px;margin:0 0 22px;border-radius:6px;background:repeating-linear-gradient(90deg,var(--red) 0 18px,#fff 18px 36px,var(--aqua) 36px 54px);box-shadow:0 0 24px rgba(79,209,217,.3);transform-origin:0 50%}
+.title{font-family:var(--display);font-weight:900;font-size:clamp(2.3rem,6.4vw,5.6rem);line-height:1.02;letter-spacing:-.035em;margin-bottom:22px;text-shadow:0 6px 40px rgba(2,21,38,.6)}
+.sub-title{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,3.2vw,2.5rem);line-height:1.1;letter-spacing:-.02em;margin:clamp(40px,7vh,72px) 0 20px}
+.lead{font-size:clamp(1.05rem,1.6vw,1.3rem);color:rgba(234,251,253,.86);max-width:640px;margin-bottom:24px}
+.note,.fine{color:rgba(234,251,253,.62);font-size:.92rem}
+.card{position:relative;background:linear-gradient(160deg,rgba(9,58,92,.62),rgba(3,27,48,.82) 60%);border:1px solid var(--line);border-radius:26px;padding:28px;box-shadow:0 30px 60px -30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.card h3{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1.2;margin-bottom:10px;letter-spacing:-.01em}
+.card p{color:rgba(234,251,253,.8)}
+/* разбивка текста для анимаций */
+.ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.ln > span{display:inline-block;will-change:transform}
+.w{display:inline-block;white-space:nowrap}
+.ch{display:inline-block;will-change:transform}
+
+/* ---------- герой ---------- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;padding:120px var(--pad) 90px;overflow:hidden}
+.hero-in{position:relative;max-width:var(--maxw);width:100%;margin:0 auto}
+.kicker{font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:.82rem;color:var(--aqua2);margin-bottom:10px}
+.mega{font-family:var(--display);font-weight:900;font-size:clamp(4.4rem,17.5vw,16rem);line-height:.86;letter-spacing:-.065em;margin:0 0 24px -.04em;white-space:nowrap;text-shadow:0 14px 60px rgba(2,21,38,.45)}
+.mega .sw{color:var(--aqua2)}
+.mega .split{display:inline-block}
+.sub{font-size:clamp(1.1rem,1.8vw,1.45rem);max-width:560px;margin-bottom:30px;color:rgba(234,251,253,.92);text-shadow:0 2px 20px rgba(2,21,38,.7)}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.next{position:absolute;right:var(--pad);bottom:84px;display:flex;align-items:center;gap:18px;padding:16px 20px;border-radius:22px;background:rgba(2,21,38,.72);border:1px solid var(--line);min-width:300px}
+.next:empty{display:none}
+.next small{display:block;color:var(--aqua2);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.next b{font-weight:700;font-size:1.05rem}
+.next .led{display:block;font-family:"Orbitron",var(--display);font-weight:800;font-size:1.35rem;color:var(--yellow);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.next .free{font-size:.85rem;color:rgba(234,251,253,.7)}
+.pulse{width:12px;height:12px;border-radius:50%;background:#7CFF9B;box-shadow:0 0 0 0 rgba(124,255,155,.6);animation:pulse 1.8s infinite;flex:none}
+@keyframes pulse{70%{box-shadow:0 0 0 12px rgba(124,255,155,0)}100%{box-shadow:0 0 0 0 rgba(124,255,155,0)}}
+.cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(234,251,253,.75)}
+.cue i{width:2px;height:46px;background:linear-gradient(180deg,rgba(234,251,253,.9),rgba(234,251,253,0));animation:cue 1.8s var(--ease) infinite;transform-origin:50% 0}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* ---------- манифест ---------- */
+.manifest{position:relative;display:flex;align-items:center;padding:clamp(70px,14vh,140px) var(--pad) clamp(30px,6vh,60px)}
+.mf{max-width:1180px;margin:0 auto;font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,4.6vw,4.2rem);line-height:1.14;letter-spacing:-.03em}
+.mf .w{opacity:1}
+.js-fx .mf .w{opacity:.14;transition:none}
+
+/* ---------- цифры ---------- */
+.stats{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:0;max-width:calc(var(--maxw) + 2 * var(--pad));margin:0 auto;padding:30px var(--pad) 40px}
+.stat{padding:26px 26px 26px 0;border-top:3px solid transparent;border-image:repeating-linear-gradient(90deg,var(--red) 0 14px,#fff 14px 28px,var(--aqua) 28px 42px) 3}
+.stat + .stat{padding-left:26px}
+.stat b{display:flex;align-items:baseline;gap:6px;font-family:var(--display);font-weight:900;font-size:clamp(3.4rem,7vw,6.4rem);line-height:1;letter-spacing:-.05em;color:var(--foam)}
+.stat b i{font-style:normal;font-variant-numeric:tabular-nums}
+.stat b small{font-size:.32em;letter-spacing:0;color:var(--aqua2)}
+.stat b small.pre{order:-1}
+.stat span{display:block;margin-top:12px;color:rgba(234,251,253,.75);font-size:.98rem;max-width:230px}
+
+/* ---------- бегущие строки ---------- */
+.marq-clip{overflow:clip}
+.marq{position:relative;z-index:2;padding:16px 0 6px;overflow:hidden;transform:rotate(-2.5deg);margin:20px -40px}
+.marq-row{display:flex;width:max-content;font-family:var(--display);font-weight:900;font-size:clamp(2.6rem,7vw,6rem);line-height:1.08;letter-spacing:-.03em;white-space:nowrap;will-change:transform}
+.marq-row span{padding-right:.4em}
+.marq-row.o{color:transparent;-webkit-text-stroke:1.5px rgba(127,233,240,.7)}
+
+/* ---------- почему мы ---------- */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.reason{min-height:250px;display:flex;flex-direction:column;transition:border-color .3s}
+.reason:hover{border-color:rgba(127,233,240,.5)}
+.reason .num{font-family:var(--display);font-weight:900;font-size:3rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(127,233,240,.55);margin-bottom:auto;padding-bottom:28px}
+.reason:nth-child(1){background:linear-gradient(160deg,rgba(255,197,49,.22),rgba(3,27,48,.85) 62%)}
+.reason:nth-child(1) .num{-webkit-text-stroke-color:var(--yellow)}
+
+/* ---------- «ворота» между разделами ---------- */
+.gate{position:relative;height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+.gate-in{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.g-num{font-family:var(--display);font-weight:700;font-size:clamp(1rem,1.6vw,1.3rem);letter-spacing:.3em;color:var(--yellow);margin-bottom:10px}
+.g-word{display:block;font-family:var(--display);font-weight:900;font-size:clamp(3rem,13vw,13rem);line-height:.95;letter-spacing:-.055em;white-space:nowrap;text-shadow:0 20px 80px rgba(2,21,38,.6)}
+.g-rope{display:block;width:min(70vw,900px);height:10px;margin-top:26px;border-radius:6px;background:repeating-linear-gradient(90deg,var(--red) 0 22px,#fff 22px 44px,var(--aqua) 44px 66px);box-shadow:0 0 30px rgba(79,209,217,.35)}
+
+/* ---------- расписание ---------- */
+.hwrap{position:relative;overflow-x:auto;overflow-y:hidden;margin:0 calc(-1 * var(--pad));padding:10px var(--pad) 30px;scrollbar-width:none}
+.hwrap::-webkit-scrollbar{display:none}
+.js-fx .hwrap{overflow:clip}
+.htrack{display:flex;gap:20px;width:max-content}
+.day{position:relative;width:clamp(250px,23vw,320px);min-height:min(58vh,480px);display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.day .big{position:absolute;right:-6px;top:-18px;font-family:var(--display);font-weight:900;font-size:8rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(127,233,240,.18);pointer-events:none}
+.day h3{font-size:1.5rem;margin:0}
+.day .tag{align-self:flex-start;padding:4px 12px;border-radius:999px;background:var(--yellow);color:var(--deep);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}
+.day.today{border-color:rgba(255,197,49,.6);background:linear-gradient(160deg,rgba(255,197,49,.18),rgba(3,27,48,.85) 60%)}
+.day .wave{margin-top:auto;height:24px;opacity:.5}
+.slot{display:flex;flex-direction:column;gap:6px;text-align:left;padding:16px 18px;border-radius:18px;background:rgba(2,21,38,.55);border:1.5px solid var(--line);transition:border-color .25s,background .25s,transform .25s}
+.slot:hover{border-color:var(--aqua2)}
+.slot .k{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--aqua2);font-weight:600}
+.slot .t{font-family:var(--display);font-weight:700;font-size:1.35rem;letter-spacing:-.01em}
+.slot .free{display:flex;align-items:center;gap:10px;font-size:.88rem;color:rgba(234,251,253,.75)}
+.dots{display:flex;gap:4px}
+.dots i{width:9px;height:9px;border-radius:50%;background:#7CFF9B}
+.dots i.x{background:rgba(234,251,253,.2)}
+.slot.pick{border-color:var(--yellow);background:rgba(255,197,49,.14)}
+.slot.pick .k::after{content:" · в календарь";color:var(--yellow)}
+.slot.none{opacity:.35;pointer-events:none;border-style:dashed;justify-content:center;min-height:96px}
+#days[data-fl="am"] .slot.pm,#days[data-fl="pm"] .slot.am{opacity:.18;pointer-events:none;filter:saturate(0)}
+.sec-foot{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:center;margin-top:28px}
+.sec-foot .note{max-width:520px}
+
+/* ---------- программы ---------- */
+.water-block{display:grid;grid-template-columns:minmax(260px,.9fr) 1.6fr;gap:clamp(24px,5vw,70px);align-items:start}
+.km-stick{position:sticky;top:110px}
+.km-stick .label{display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(79,209,217,.16);color:var(--aqua2);font-weight:600;font-size:.88rem}
+.km{display:flex;align-items:baseline;gap:10px;font-family:var(--display);font-weight:900;line-height:.9;letter-spacing:-.06em;margin:18px 0 10px}
+.km b{font-size:clamp(7rem,17vw,15rem);font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff 20%,var(--aqua2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.km small{font-size:clamp(2rem,4vw,3.2rem);color:var(--aqua2)}
+.km-stick p{color:rgba(234,251,253,.75);max-width:300px}
+.lanebar{display:flex;height:74px;border-radius:20px;overflow:hidden;background:rgba(2,21,38,.6);border:1px solid var(--line);margin-bottom:22px}
+.lanebar .seg{position:relative;flex:var(--m) 0 0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:var(--deep);background:var(--c);overflow:hidden;white-space:nowrap;transform-origin:0 50%}
+.lanebar .seg + .seg{border-left:2px solid rgba(2,21,38,.5)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:26px}
+.legend > div{padding:14px 16px;border-radius:16px;background:rgba(2,21,38,.55);border-left:4px solid var(--c)}
+.legend b{display:block;font-size:.98rem}
+.legend span{font-size:.88rem;color:rgba(234,251,253,.72)}
+.legend.mini{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin:16px 0 8px}
+.calc .inputs{display:flex;gap:12px;margin:16px 0}
+label{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:rgba(234,251,253,.72);font-weight:500}
+input,select,textarea{background:rgba(2,21,38,.7);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--foam);font-size:1rem;width:100%;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--aqua)}
+.calc .inputs label{width:140px}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.res > div{padding:12px 14px;border-radius:14px;background:rgba(2,21,38,.55)}
+.res small{display:block;font-size:.8rem;color:rgba(234,251,253,.65)}
+.res b{font-family:var(--display);font-weight:700;font-size:1.25rem}
+.res .hl{background:rgba(255,197,49,.16);border:1px solid rgba(255,197,49,.4)}
+.res .hl b{color:var(--yellow)}
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tech{border-top:4px solid var(--c)}
+.tech .ix{display:block;font-family:var(--display);font-weight:900;font-size:2rem;line-height:1;color:var(--c);margin-bottom:14px}
+.tech h4{font-family:var(--display);font-size:1.1rem;margin-bottom:8px}
+.tech p{font-size:.95rem}
+.dry-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin:clamp(40px,7vh,72px) 0 20px}
+.dry-head .sub-title{margin:0}
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.ex{display:flex;flex-direction:column;gap:10px}
+.ex-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.ex h4{font-family:var(--display);font-weight:700;font-size:1.02rem;line-height:1.25}
+.ex .n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(79,209,217,.16);color:var(--aqua2);font-weight:700;font-size:.85rem}
+.ex .dose{align-self:flex-start;padding:3px 10px;border-radius:999px;background:rgba(255,197,49,.16);color:var(--yellow);font-size:.8rem;font-weight:600}
+.scheme{background:rgba(2,21,38,.55);border-radius:16px;padding:12px}
+.scheme svg{width:100%;height:auto;display:block;max-height:170px}
+.scheme polyline.b{fill:none;stroke:#EAFBFD;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.scheme polyline.q{fill:none;stroke:rgba(79,209,217,.6);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.scheme text{fill:rgba(234,251,253,.7);font:600 7px var(--body)}
+.play{align-self:flex-start;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:.85rem;font-weight:600;transition:border-color .2s,background .2s}
+.play:hover,.play[aria-pressed="true"]{border-color:var(--aqua2);background:rgba(127,233,240,.1)}
+.ex p{font-size:.92rem}
+.dt-row{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-items:stretch;margin-top:clamp(40px,7vh,72px)}
+.dt-row .tip{flex-direction:column;align-items:flex-start;justify-content:space-between;margin:0;max-width:none}
+.d-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.lvl{padding:8px 16px;border-radius:999px;background:var(--yellow);color:var(--deep);font-weight:800;font-family:var(--display);font-size:.95rem}
+.d-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 12px}
+.d-stats div{padding:12px 14px;border-radius:14px;background:rgba(2,21,38,.55)}
+.d-stats small{display:block;font-size:.8rem;color:rgba(234,251,253,.65)}
+.d-stats b{font-family:var(--display);font-size:1.3rem}
+.progress{height:10px;border-radius:6px;background:rgba(2,21,38,.7);overflow:hidden;margin-bottom:8px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--aqua),var(--yellow));transition:width .8s var(--ease)}
+#dNext{font-size:.9rem;color:rgba(234,251,253,.7)}
+.d-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;margin:18px 0 10px}
+.d-list{list-style:none;display:grid;gap:6px}
+.d-list li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(2,21,38,.45);font-size:.92rem}
+.d-list button{width:28px;height:28px;border-radius:50%;background:rgba(240,72,62,.18);color:#ff9d96;font-size:1.1rem;line-height:1}
+.empty-d{justify-content:center!important;color:rgba(234,251,253,.6)}
+
+/* ---------- тренеры: стопка карточек ---------- */
+.stack{position:relative;display:grid;gap:clamp(14px,3vh,30px);padding-bottom:2vh}
+.coach{position:sticky;top:calc(96px + var(--i) * 26px);min-height:min(50vh,400px);display:grid;grid-template-columns:auto 1fr;gap:clamp(22px,4vw,56px);align-items:center;padding:clamp(26px,4vw,56px);overflow:hidden;transform-origin:50% 0;background:linear-gradient(150deg,rgba(9,64,100,.95),rgba(3,27,48,.97) 65%)}
+.coach .mono{position:relative;width:clamp(130px,16vw,210px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#9cf3f7,var(--aqua) 40%,#0b6e8c 100%);box-shadow:0 30px 60px -20px rgba(79,209,217,.5),inset 0 -10px 30px rgba(3,33,58,.35)}
+.coach .mono::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px dashed rgba(127,233,240,.4);animation:spin 30s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.coach .mono b{font-family:var(--display);font-weight:900;font-size:clamp(3rem,6vw,5.2rem);color:var(--deep);letter-spacing:-.05em}
+.coach .rank{display:inline-block;padding:6px 14px;border-radius:999px;background:var(--yellow);color:var(--deep);font-weight:700;font-size:.85rem;margin-bottom:14px}
+.coach h3{font-size:clamp(1.7rem,3.6vw,3rem);line-height:1.05;letter-spacing:-.03em;margin-bottom:6px}
+.coach .role{color:var(--aqua2);font-weight:600;margin-bottom:18px}
+.coach ul{list-style:none;display:grid;gap:10px}
+.coach li{display:flex;gap:12px;align-items:flex-start;font-size:1.05rem;color:rgba(234,251,253,.9)}
+.coach li::before{content:"";flex:none;width:10px;height:10px;margin-top:.55em;border-radius:50%;background:var(--yellow)}
+.coach::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#021526;opacity:var(--dim,0);pointer-events:none;z-index:3}
+.coach .ix{position:absolute;right:clamp(16px,3vw,40px);bottom:-.2em;font-family:var(--display);font-weight:900;font-size:clamp(6rem,14vw,12rem);line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(127,233,240,.16);pointer-events:none}
+
+/* ---------- цены ---------- */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:end;margin-bottom:22px}
+.price{display:flex;flex-direction:column;min-height:290px}
+.price.grp{min-height:330px;border-color:rgba(255,197,49,.55);background:linear-gradient(160deg,rgba(255,197,49,.2),rgba(3,27,48,.88) 60%)}
+.price.ind{min-height:305px}
+.price .place{align-self:flex-start;padding:5px 12px;border-radius:999px;background:rgba(79,209,217,.16);color:var(--aqua2);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:auto}
+.price.grp .place{background:var(--yellow);color:var(--deep)}
+.price h3{margin-top:26px}
+.price .amount{display:flex;align-items:baseline;gap:8px;margin-top:18px;font-family:var(--display);font-weight:900;letter-spacing:-.05em}
+.price .amount b{font-size:clamp(3.6rem,7vw,5.8rem);line-height:1;font-variant-numeric:tabular-nums}
+.price .amount small{font-size:1.1rem;color:var(--aqua2);letter-spacing:0}
+.rng{flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;margin:18px 0 6px;font-size:1rem;color:var(--foam)}
+.rng input{flex:1;min-width:180px;accent-color:var(--yellow);padding:0;border:0;background:none}
+
+/* ---------- первое занятие ---------- */
+.flow{position:relative;list-style:none;display:grid;gap:14px;max-width:760px;padding-left:64px;counter-reset:f}
+.flow::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:3px;border-radius:3px;background:rgba(127,233,240,.15)}
+.flow::after{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:3px;border-radius:3px;background:linear-gradient(180deg,var(--aqua),var(--yellow));transform-origin:50% 0;transform:scaleY(var(--fl,1))}
+.flow li{position:relative;counter-increment:f;padding:16px 20px;border-radius:20px;background:rgba(3,27,48,.72);border:1px solid var(--line)}
+.flow li::before{content:counter(f);position:absolute;left:-64px;top:14px;width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:var(--deep);border:2px solid var(--aqua);font-family:var(--display);font-weight:800;color:var(--aqua2);z-index:1;transition:background .35s,color .35s,border-color .35s}
+.flow li.on::before{background:var(--yellow);border-color:var(--yellow);color:var(--deep)}
+.flow b{display:block;font-family:var(--display);font-size:1.15rem;margin-bottom:4px}
+.flow span{color:rgba(234,251,253,.8)}
+.tip{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:50px;max-width:900px}
+.tip p{max-width:620px;transition:opacity .28s,transform .28s}
+.tip p.sw{opacity:0;transform:translateY(6px)}
+
+/* ---------- запись ---------- */
+.start{text-align:center;padding:2vh 0 4vh}
+.start .sec-num{margin-bottom:10px}
+.sign-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(20px,4vw,48px);align-items:start;margin-top:clamp(20px,4vh,40px)}
+.sign-grid .sub-title{margin-top:0}
+.sign-grid .builder{margin-top:calc(clamp(1.5rem,3.2vw,2.5rem) * 1.1 + 20px)}
+.giant{font-family:var(--display);font-weight:900;font-size:clamp(3.6rem,15vw,14rem);line-height:.9;letter-spacing:-.06em;margin-bottom:26px;white-space:nowrap;color:var(--yellow);text-shadow:0 20px 80px rgba(255,197,49,.25)}
+.giant .split{display:inline-block}
+.start .lead{margin:0 auto 34px}
+.tg{display:inline-flex;align-items:center;gap:14px;padding:22px 38px;border-radius:999px;background:linear-gradient(135deg,#2AABEE,#229ED9);color:#fff;font-weight:700;font-size:1.2rem;box-shadow:0 20px 50px -14px rgba(42,171,238,.7);transition:box-shadow .3s}
+.tg:hover{box-shadow:0 26px 60px -12px rgba(42,171,238,.95)}
+.tg svg{width:28px;height:28px}
+.link-text{margin-top:14px;color:rgba(234,251,253,.6)}
+.steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 60px;counter-reset:s}
+.steps li{counter-increment:s;padding:24px;border-radius:22px;background:rgba(3,27,48,.72);border:1px solid var(--line)}
+.steps li::before{content:"0" counter(s);display:block;font-family:var(--display);font-weight:900;font-size:2rem;color:var(--aqua2);margin-bottom:12px}
+.steps b{display:block;font-size:1.08rem;margin-bottom:4px}
+.steps span{color:rgba(234,251,253,.78);font-size:.95rem}
+.b-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 12px}
+.builder textarea{resize:vertical;min-height:110px}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.faq-wrap{max-width:none}
+#faq{columns:2;column-gap:40px}
+#faq details{break-inside:avoid}
+details.q{border-bottom:1px solid var(--line)}
+details.q summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:16px;align-items:center;padding:20px 4px;font-weight:600;font-size:1.08rem}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary::after{content:"+";flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(79,209,217,.14);color:var(--aqua2);font-size:1.3rem;transition:transform .35s var(--ease),background .3s}
+details.q[open] summary::after{transform:rotate(45deg);background:var(--yellow);color:var(--deep)}
+details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
+
+/* ---------- подвал ---------- */
+.foot{padding:80px var(--pad) 120px;max-width:calc(var(--maxw) + 2 * var(--pad));margin:0 auto;display:grid;gap:18px;border-top:1px solid var(--line)}
+.brand.big{font-size:clamp(3rem,10vw,7rem);line-height:1}
+.foot nav{display:flex;flex-wrap:wrap;gap:8px 22px;font-weight:600}
+.foot nav a:hover{color:var(--aqua2)}
+.foot p{color:rgba(234,251,253,.6);font-size:.92rem}
+.credit a{color:var(--aqua2)}
+.capsw{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:.9rem;color:rgba(234,251,253,.7)}
+.capsw button{width:28px;height:28px;border-radius:50%;background:var(--c);border:2px solid transparent;transition:transform .2s}
+.capsw button[aria-pressed="true"]{border-color:#fff;transform:scale(1.15)}
+
+/* ---------- нижнее меню на телефоне, тост, «О проекте» ---------- */
+.dock{display:none}
+#toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,30px);opacity:0;z-index:120;pointer-events:none;padding:12px 22px;border-radius:999px;background:var(--foam);color:var(--deep);font-weight:600;transition:opacity .3s,transform .3s var(--ease);max-width:calc(100vw - 32px);text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.about-btn{position:fixed;left:16px;bottom:16px;z-index:55;padding:10px 18px;border-radius:999px;background:rgba(2,21,38,.88);border:1px solid var(--line);font-weight:600;font-size:.9rem;transition:opacity .4s,transform .4s var(--ease)}
+.about-btn.tuck{opacity:0;transform:translateY(20px);pointer-events:none}
+.about{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:20px;background:rgba(1,12,26,.75)}
+.about[hidden]{display:none}
+.about-card{max-width:720px;width:100%;max-height:calc(100svh - 40px);overflow:auto}
+.about-card h2{font-family:var(--display);font-size:1.8rem;margin-bottom:12px}
+.a-close{position:absolute;right:16px;top:14px;width:40px;height:40px;border-radius:50%;background:rgba(234,251,253,.1);font-size:1.5rem}
+.a-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.a-grid div{padding:14px;border-radius:14px;background:rgba(2,21,38,.55)}
+.a-grid b{display:block;margin-bottom:4px}
+.a-grid span{font-size:.9rem;color:rgba(234,251,253,.75)}
+.a-tech{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 16px}
+.a-tech li{padding:4px 12px;border-radius:999px;background:rgba(79,209,217,.14);color:var(--aqua2);font-size:.85rem;font-weight:600}
+
+/* ---------- адаптив ---------- */
+@media (max-width:1100px){
+  .why-grid{grid-template-columns:repeat(2,1fr)}
+  .tech-grid{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(3){padding-left:0}
+}
+@media (max-width:860px){
+  .rail{display:none}
+  .water-block{grid-template-columns:1fr}
+  .km-stick{position:relative;top:0}
+  .podium{grid-template-columns:1fr}
+  .price,.price.grp,.price.ind{min-height:0}
+  .price h3{margin-top:18px}
+  .steps,.b-grid{grid-template-columns:1fr}
+  .dt-row,.sign-grid{grid-template-columns:1fr}
+  .sign-grid .builder{margin-top:0}
+  #faq{columns:1}
+  .d-form{grid-template-columns:1fr 1fr}
+  .a-grid{grid-template-columns:1fr}
+  .coach{grid-template-columns:1fr;align-content:start;top:calc(76px + var(--i) * 18px);min-height:0}
+  .coach .mono{width:120px}
+}
+@media (max-width:760px){
+  body{font-size:16px}
+  .nav{display:none}
+  .bar{justify-content:center}
+  .dock{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;justify-content:space-between;gap:4px;padding:6px;border-radius:999px;background:rgba(2,21,38,.92);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .dock a{flex:1;text-align:center;padding:10px 4px;border-radius:999px;font-size:.78rem;font-weight:600;white-space:nowrap}
+  .dock a[aria-current="true"]{background:rgba(127,233,240,.16);color:var(--aqua2)}
+  .dock a.cta{background:var(--yellow);color:var(--deep)}
+  .about-btn{bottom:calc(76px + env(safe-area-inset-bottom,0px));left:12px}
+  #toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .hero{flex-direction:column;justify-content:flex-end;align-items:stretch;padding-bottom:96px}
+  .next{position:relative;left:auto;right:auto;bottom:auto;min-width:0;margin-top:18px;padding:12px 16px;gap:12px}
+  .next .free{display:none}
+  .next .led{font-size:1.1rem}
+  .hero .actions .btn{width:100%}
+  .cue{display:none}
+  .why-grid{grid-template-columns:1fr}
+  /* на телефоне длинные списки карточек листаются пальцем вбок — страница короче */
+  .tech-grid,.ex-grid{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1 * var(--pad));padding:4px var(--pad) 14px;scroll-padding-left:var(--pad);scrollbar-width:none}
+  .tech-grid::-webkit-scrollbar,.ex-grid::-webkit-scrollbar{display:none}
+  .tech-grid > *,.ex-grid > *{flex:0 0 82%;scroll-snap-align:start}
+  .legend{grid-template-columns:1fr 1fr;gap:8px}
+  .legend > div{padding:10px 12px}
+  .legend span{display:none}
+  .legend.mini span{display:block}
+  .price{padding:22px}
+  .price .amount{margin-top:10px}
+  .reason{min-height:0}
+  .stats{grid-template-columns:1fr 1fr;padding-bottom:50px}
+  .stat,.stat + .stat{padding:18px 12px 18px 0}
+  .stat span{font-size:.88rem}
+  .marq{margin:10px -20px}
+  .day{width:80vw;min-height:0;scroll-snap-align:start}
+  .js-fx .hwrap,.hwrap{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:var(--pad);-webkit-overflow-scrolling:touch}
+  .hwrap::after{content:"← листай вбок →";display:block;position:sticky;left:0;margin-top:10px;font-size:.8rem;color:rgba(234,251,253,.55);text-align:center;width:calc(100vw - 2 * var(--pad))}
+  .manifest{padding-top:70px}
+  .coach{min-height:0}
+  .d-stats{grid-template-columns:1fr 1fr 1fr}
+  .d-form{grid-template-columns:1fr}
+  .foot{padding-bottom:140px}
+  .flow{padding-left:56px}
+  .flow li::before{left:-56px;width:40px;height:40px}
+  .flow::before,.flow::after{left:19px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+</style>
+</head>
+<body>
+<canvas id="water" aria-hidden="true"></canvas>
+<div class="shade" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"><i></i></div>
+
+<header class="bar" id="bar">
+  <a class="brand" href="#top" data-to aria-label="DTswim — в начало">DT<span>swim</span></a>
+  <nav class="nav" aria-label="Разделы сайта">
+    <a href="#schedule" data-to data-nav="schedule">Расписание</a>
+    <a href="#programs" data-to data-nav="programs">Программы</a>
+    <a href="#coaches" data-to data-nav="coaches">Тренеры</a>
+    <a href="#prices" data-to data-nav="prices">Цены</a>
+    <a href="#signup" data-to data-nav="signup" class="cta">Записаться</a>
+  </nav>
+</header>
+
+<nav class="rail" aria-label="Где я на странице">
+  <a href="#top" data-to data-rail="top"><span>Старт</span></a>
+  <a href="#schedule" data-to data-rail="schedule"><span>Расписание</span></a>
+  <a href="#programs" data-to data-rail="programs"><span>Программы</span></a>
+  <a href="#coaches" data-to data-rail="coaches"><span>Тренеры</span></a>
+  <a href="#prices" data-to data-rail="prices"><span>Цены</span></a>
+  <a href="#signup" data-to data-rail="signup"><span>Запись</span></a>
+  <i class="rail-dot" aria-hidden="true"></i>
+</nav>
+
+<main>
+
+  <!-- ===================== ГЕРОЙ: вид на воду сверху ===================== -->
+  <section class="hero" id="top">
+    <div class="hero-in">
+      <p class="kicker" data-hero="k">Школа плавания Дмитрия Тиханенка</p>
+      <h1 class="mega" aria-label="DTswim"><span class="split" data-chars>DT</span><span class="split sw" data-chars>swim</span></h1>
+      <p class="sub" data-hero="s">Тренируем на воде и на суше, в маленьких группах. Первое занятие — бесплатно.</p>
+      <div class="actions" data-hero="a">
+        <a class="btn main mag" href="#signup" data-to>Записаться на бесплатное занятие</a>
+        <a class="btn ghost mag" href="#schedule" data-to>Смотреть расписание</a>
+      </div>
+    </div>
+    <div class="next" id="nextCard" data-hero="n" aria-live="off"></div>
+    <div class="cue" data-hero="c" aria-hidden="true"><span>Листай — ныряем</span><i></i></div>
+  </section>
+
+  <!-- ===================== МАНИФЕСТ: слова загораются по мере прокрутки ===================== -->
+  <section class="manifest" aria-label="О школе">
+    <p class="mf" data-words>Мы учим плавать быстро и красиво. Группы до четырёх человек — тренер видит каждого и сразу поправляет технику. Вода и суша, шесть дней в неделю. А первое занятие — бесплатно.</p>
+  </section>
+
+  <!-- ===================== ЦИФРЫ ===================== -->
+  <section class="stats" aria-label="DTswim в цифрах">
+    <div class="stat"><b><i data-count="6">6</i></b><span>дней в неделю: с понедельника по субботу, утром и вечером</span></div>
+    <div class="stat"><b><i data-count="4">4</i><small>км</small></b><span>за тренировку: разминка, техника, основная серия и заминка</span></div>
+    <div class="stat"><b><small class="pre">до</small><i data-count="4">4</i></b><span>человек в группе — или индивидуально, один на один</span></div>
+    <div class="stat"><b><i data-count="3">3</i></b><span>тренера: два мастера спорта и КМС — <a class="link" href="#coaches" data-to>познакомиться</a></span></div>
+  </section>
+
+  <div class="marq-clip"><div class="marq" aria-hidden="true">
+    <div class="marq-row" data-dir="1"><span>ВОДА · СИЛА · ТЕХНИКА · РИТМ · ДИСЦИПЛИНА · </span><span>ВОДА · СИЛА · ТЕХНИКА · РИТМ · ДИСЦИПЛИНА · </span></div>
+    <div class="marq-row o" data-dir="-1"><span>ПЕРВОЕ ЗАНЯТИЕ БЕСПЛАТНО · ГРУППЫ ДО 4 ЧЕЛОВЕК · </span><span>ПЕРВОЕ ЗАНЯТИЕ БЕСПЛАТНО · ГРУППЫ ДО 4 ЧЕЛОВЕК · </span></div>
+  </div></div>
+
+  <!-- ===================== 01 · РАСПИСАНИЕ ===================== -->
+  <section class="sec schedule" id="schedule" aria-labelledby="schT">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="title big-t" id="schT"><span class="split" data-chars>Расписание</span></h2>
+      <span class="rope" aria-hidden="true"></span>
+      <p class="lead">Шесть тренировочных дней. В каждой ячейке видно, сколько мест свободно. Нажмите на занятия — и добавьте их в свой календарь.</p>
+      <div class="chips" id="slotFilter" role="group" aria-label="Показать занятия">
+        <button type="button" data-fl="all" aria-pressed="true">Все</button>
+        <button type="button" data-fl="am" aria-pressed="false">Утро</button>
+        <button type="button" data-fl="pm" aria-pressed="false">Вечер</button>
+      </div>
+    </div>
+    <div class="hwrap" id="hwrap"><div class="htrack" id="days"></div></div>
+    <div class="sec-foot">
+      <button class="btn main mag" id="icsBtn" type="button">Добавить все занятия в календарь</button>
+      <p class="note">Пн, ср и пт — утром и вечером. Вт и чт — только вечером. В субботу — утренняя тренировка. В группе до 4 человек.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 02 · ПРОГРАММЫ ===================== -->
+  <section class="sec programs" id="programs" aria-labelledby="prgT">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="title big-t" id="prgT"><span class="split" data-chars>Программы тренировок</span></h2>
+      <span class="rope" aria-hidden="true"></span>
+      <p class="lead">Две части подготовки: тренировки в бассейне и занятия на суше.</p>
+    </div>
+
+    <div class="water-block">
+      <div class="km-stick">
+        <span class="label">Вода · произвольный стиль</span>
+        <div class="km"><b id="kmNum">4</b><small>км</small></div>
+        <p>объём одной тренировки. Вот как он распределяется:</p>
+      </div>
+      <div class="water-flow">
+        <div class="lanebar" id="barset" aria-label="Распределение 4 км по частям тренировки"></div>
+        <div class="legend" id="legend"></div>
+        <div class="card calc" id="paceCalc">
+          <h3>Калькулятор темпа</h3>
+          <p>Введите, за сколько вы плывёте 100 м произвольным стилем, и узнайте ориентир по времени.</p>
+          <div class="inputs">
+            <label>минуты<input type="number" id="pcMin" min="0" max="10" value="1" inputmode="numeric"></label>
+            <label>секунды<input type="number" id="pcSec" min="0" max="59" value="45" inputmode="numeric"></label>
+          </div>
+          <div class="res" id="paceRes"></div>
+          <div class="legend mini" id="paceParts"></div>
+          <p class="fine">Расчёт при ровном темпе — это ориентир. Скорость на разных частях тренировки отличается.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title" data-lines>Техника кроля: четыре ключа</h3>
+    <div class="tech-grid" id="techGrid"></div>
+
+    <div class="dry-block">
+      <div class="dry-head">
+        <h3 class="sub-title" data-lines>Суша</h3>
+        <div class="chips" role="tablist" aria-label="Занятия на суше">
+          <button type="button" role="tab" id="t-core" aria-selected="true" aria-controls="d-core">Корпус <em>Вт · Чт</em></button>
+          <button type="button" role="tab" id="t-str" aria-selected="false" aria-controls="d-str">Сила <em>Пн · Ср · Пт</em></button>
+        </div>
+      </div>
+      <div id="d-core" role="tabpanel" aria-labelledby="t-core"><div class="ex-grid" id="coreGrid"></div></div>
+      <div id="d-str" role="tabpanel" aria-labelledby="t-str" hidden><div class="ex-grid" id="strGrid"></div></div>
+    </div>
+
+    <div class="dt-row">
+    <div class="card diary" id="diary">
+      <div class="d-head">
+        <div><h3>Дневник пловца</h3><p>Записывайте тренировки и растите по уровням. Записи хранятся только на вашем устройстве.</p></div>
+        <div class="lvl" id="dLevel"></div>
+      </div>
+      <div class="d-stats" id="dStats"></div>
+      <div class="progress"><i id="dBar"></i></div>
+      <p id="dNext"></p>
+      <div class="d-form">
+        <label>Дата<input type="date" id="dDate"></label>
+        <label>Где<select id="dType"><option value="water">Вода</option><option value="dry">Суша</option></select></label>
+        <label>Дистанция, км<input type="number" id="dKm" step="0.1" min="0" max="30" value="4" inputmode="decimal"></label>
+        <button class="btn main" id="dAdd" type="button">Записать тренировку</button>
+      </div>
+      <ul class="d-list" id="dList"></ul>
+    </div>
+    <aside class="card tip">
+      <div><h3>Совет дня</h3><p id="tipText"></p></div>
+      <button class="btn ghost" id="tipNext" type="button">Ещё совет <span id="tipN"></span></button>
+    </aside>
+    </div>
+  </section>
+
+  <!-- ===================== 03 · ТРЕНЕРЫ ===================== -->
+  <section class="sec coaches" id="coaches" aria-labelledby="coT">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="title big-t" id="coT"><span class="split" data-chars>Наши тренеры</span></h2>
+      <span class="rope" aria-hidden="true"></span>
+      <p class="lead">Три тренера, которые ведут занятия и следят за вашей техникой.</p>
+    </div>
+    <div class="stack" id="coachStack"></div>
+  </section>
+
+  <!-- ===================== 04 · ЦЕНЫ ===================== -->
+  <section class="sec prices" id="prices" aria-labelledby="prT">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="title big-t" id="prT"><span class="split" data-chars>Цены</span></h2>
+      <span class="rope" aria-hidden="true"></span>
+      <p class="lead">Простая цена без абонементов с подвохом. Начните с бесплатного занятия.</p>
+    </div>
+    <div class="podium">
+      <article class="card price free"><span class="place">Старт</span><h3>Первое занятие</h3><p>Попробуйте тренировку и познакомьтесь с тренером.</p><div class="amount"><b data-price="0">0</b><small>BYN</small></div></article>
+      <article class="card price grp"><span class="place">Группа</span><h3>В группе</h3><p>От 1 до 4 человек.</p><div class="amount"><b data-price="group">35</b><small>BYN</small></div></article>
+      <article class="card price ind"><span class="place">Один на один</span><h3>Индивидуально</h3><p>Тренер только с вами.</p><div class="amount"><b data-price="ind">50</b><small>BYN</small></div></article>
+    </div>
+    <div class="card calc" id="priceCalc">
+      <h3>Сколько выйдет в месяц</h3>
+      <div class="chips">
+        <button type="button" data-f="group" aria-pressed="true">В группе</button>
+        <button type="button" data-f="ind" aria-pressed="false">Индивидуально</button>
+      </div>
+      <label class="rng">Занятий в неделю: <b id="pcN">2</b><input type="range" id="pcR" min="1" max="6" value="2"></label>
+      <div class="res">
+        <div class="hl"><small>за месяц (4 недели)</small><b id="pcTotal"></b></div>
+        <div><small>одно занятие</small><b id="pcOne"></b></div>
+        <div><small>первое занятие</small><b>0 BYN</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 · ЗАПИСЬ ===================== -->
+  <section class="sec signup" id="signup" aria-labelledby="suT">
+    <div class="start">
+      <span class="sec-num">05</span>
+      <h2 class="giant" id="suT"><span class="split" data-chars>На старт!</span></h2>
+      <p class="lead">Напишите нам в Telegram — подберём группу и время из расписания. Первое занятие бесплатно.</p>
+      <a class="tg mag" href="https://t.me/ordersecurity" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 3.6 2.7 11c-1.3.5-1.3 1.3-.2 1.6l4.9 1.5 1.9 5.8c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.4-2.3 4.9 3.6c.9.5 1.5.2 1.8-.8l3.2-15.2c.3-1.3-.5-1.9-1.4-1.5Zm-3.3 3.7-8.7 7.9-.3 3.6-1.5-4.9 10.5-6.6Z"/></svg>
+        Написать в Telegram
+      </a>
+      <p class="link-text">t.me/ordersecurity</p>
+    </div>
+    <div class="sign-grid">
+    <div class="first">
+      <h3 class="sub-title" data-lines>Как пройдёт первое занятие</h3>
+      <ol class="flow" id="flow">
+      <li><b>Напишите нам</b><span>В Telegram: имя и удобный день из расписания.</span></li>
+      <li><b>Соберите сумку</b><span>Обычно берут плавки или купальник, шапочку, очки и полотенце.</span></li>
+      <li><b>Приходите в бассейн</b><span>Познакомитесь с тренером и попробуете тренировку в маленькой группе.</span></li>
+      <li><b>Решайте сами</b><span>Понравилось — выбираете группу или индивидуальные занятия. Нет — ничего не должны.</span></li>
+    </ol>
+    </div>
+    <div class="card builder" id="builder">
+      <h3>Соберите заявку за 10 секунд</h3>
+      <p>Выберите, что вам подходит, — мы подготовим текст сообщения для Telegram.</p>
+      <div class="b-grid">
+        <label>Ваше имя<input id="rName" placeholder="Например, Иван" autocomplete="given-name"></label>
+        <label>Формат<select id="rFmt"><option value="group">В группе (до 4 человек)</option><option value="ind">Индивидуально</option></select></label>
+        <label>Занятие<select id="rSlot"></select></label>
+      </div>
+      <textarea id="rText" rows="4" aria-label="Текст заявки"></textarea>
+      <div class="row">
+        <button class="btn main" id="rSend" type="button">Скопировать и открыть Telegram</button>
+        <button class="btn ghost" id="rCopy" type="button">Только скопировать</button>
+      </div>
+    </div>
+    </div>
+    <div class="faq-wrap">
+      <h3 class="sub-title" data-lines>Частые вопросы</h3>
+      <div id="faq"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <a class="brand big" href="#top" data-to>DT<span>swim</span></a>
+  <nav aria-label="Нижнее меню">
+    <a href="#schedule" data-to>Расписание</a><a href="#programs" data-to>Программы</a><a href="#coaches" data-to>Тренеры</a><a href="#prices" data-to>Цены</a><a href="#signup" data-to>Запись</a>
+    <a href="https://t.me/ordersecurity" target="_blank" rel="noopener">Telegram</a>
+  </nav>
+  <div class="capsw" role="group" aria-label="Цвет шапочки">Цвет шапочки:
+    <button type="button" data-cap="#FFC531" aria-label="Золото" aria-pressed="false"></button>
+    <button type="button" data-cap="#B8F24A" aria-label="Лайм" aria-pressed="false"></button>
+    <button type="button" data-cap="#FF7A66" aria-label="Коралл" aria-pressed="false"></button>
+    <button type="button" data-cap="#B79BFF" aria-label="Фиолет" aria-pressed="false"></button>
+  </div>
+  <p>DTswim — школа плавания Дмитрия Тиханенка</p>
+  <p class="credit" id="credit"></p>
+</footer>
+
+<nav class="dock" aria-label="Разделы">
+  <a href="#schedule" data-to data-nav="schedule">Расписание</a>
+  <a href="#programs" data-to data-nav="programs">Программы</a>
+  <a href="#coaches" data-to data-nav="coaches">Тренеры</a>
+  <a href="#prices" data-to data-nav="prices">Цены</a>
+  <a href="#signup" data-to data-nav="signup" class="cta">Запись</a>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<button id="aboutBtn" class="about-btn" type="button" aria-haspopup="dialog" hidden>О проекте</button>
+<div id="about" class="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" hidden>
+  <div class="about-card card" id="aboutCard"></div>
+</div>
+
+<!-- Готовые проверенные библиотеки: GSAP ScrollTrigger (анимации от прокрутки) и Lenis (плавный скролл). Не загрузятся — сайт всё равно работает. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.20/dist/lenis.min.js"></script>
+<script>
+/* ============ ДАННЫЕ: редактируйте здесь ============ */
+const CAPACITY = 4;   // мест в одной группе
+// taken — сколько мест уже занято (сейчас свободны все)
+const SCHEDULE = [
+  { dow:1, full:'Понедельник', short:'Пн', am:{t:'8:00–9:45', taken:0},  pm:{t:'15:00–16:45', taken:0} },
+  { dow:2, full:'Вторник',     short:'Вт', am:null,                      pm:{t:'15:00–16:45', taken:0} },
+  { dow:3, full:'Среда',       short:'Ср', am:{t:'8:00–9:45', taken:0},  pm:{t:'15:00–16:45', taken:0} },
+  { dow:4, full:'Четверг',     short:'Чт', am:null,                      pm:{t:'15:00–16:45', taken:0} },
+  { dow:5, full:'Пятница',     short:'Пт', am:{t:'8:00–9:45', taken:0},  pm:{t:'15:00–16:45', taken:0} },
+  { dow:6, full:'Суббота',     short:'Сб', am:{t:'8:00–10:00', taken:0}, pm:null }
+];
+
+// Пример структуры водной тренировки (сумма = 4000 м)
+const WATERPLAN = [
+  { name:'Разминка',       m:600,  c:'#4FD1D9', text:'Лёгкое плавание произвольным стилем' },
+  { name:'Техника',        m:600,  c:'#FFC531', text:'Работа рук, дыхание, положение тела' },
+  { name:'Основная серия', m:1800, c:'#F0483E', text:'Серии на длинных отрезках' },
+  { name:'Ускорения',      m:600,  c:'#9be7ec', text:'Короткие отрезки на высокой скорости' },
+  { name:'Заминка',        m:400,  c:'#ffe08a', text:'Расслабленное плавание' }
+];
+
+const COACHES = [
+  { name:'Дмитрий Тиханенок',  initials:'ДТ', role:'Тренер',
+    ach:['Мастер спорта (МС)','Призёр этапов Кубков мира и чемпионатов Европы по плаванию'] },
+  { name:'Анатолий Олехнович', initials:'АО', role:'Тренер',
+    ach:['Мастер спорта (МС)','Призёр Кубков РБ'] },
+  { name:'Михаил Лабко',       initials:'МЛ', role:'Тренер',
+    ach:['Кандидат в мастера спорта (КМС)','Призёр чемпионатов РБ'] }
+];
+
+// Схемы упражнений: точки [x,y] в поле 100×100. head — голова, lines — тело, eq — снаряд/скамья, db — гантели/упоры
+const STRENGTH = [
+  { t:'Короткие приседания на одной ноге', dose:'10 раз на каждую ногу',
+    tip:'Свободная нога вперёд, спина прямая. Приседайте неглубоко, колено не заваливайте внутрь.',
+    labels:['Старт','Приседание'],
+    poses:[
+      { head:[50,12], lines:[[[50,24],[50,52]],[[50,52],[50,71],[50,90]],[[50,52],[66,54],[82,56]],[[50,26],[60,32],[70,32]]] },
+      { head:[44,28], lines:[[[46,40],[40,64]],[[40,64],[58,70],[54,90]],[[40,64],[62,58],[84,56]],[[46,42],[58,46],[70,46]]] } ] },
+  { t:'Отжимания', dose:'',
+    tip:'Тело — прямая линия, локти под углом около 45° к корпусу. Опускайтесь, пока грудь почти не коснётся пола.',
+    labels:['Вверху','Внизу'],
+    poses:[
+      { head:[19,47], lines:[[[28,52],[58,69],[74,79],[90,88]],[[28,52],[28,70],[28,88]]] },
+      { head:[19,72], lines:[[[28,76],[58,82],[74,85],[90,88]],[[28,76],[42,82],[28,88]]] } ] },
+  { t:'Разгибание ног', dose:'вес 40–50%',
+    tip:'Спина прижата к спинке. Разгибайте ноги плавно и так же медленно возвращайтесь вниз.',
+    labels:['Старт','Разгибание'],
+    poses:[
+      { head:[36,18], eq:[[[20,67],[66,67]],[[24,67],[24,26]],[[40,67],[40,90]]], lines:[[[36,30],[36,64]],[[34,34],[44,48],[48,62]],[[36,64],[62,64],[60,88]]], db:[[60,87]] },
+      { head:[36,18], eq:[[[20,67],[66,67]],[[24,67],[24,26]],[[40,67],[40,90]]], lines:[[[36,30],[36,64]],[[34,34],[44,48],[48,62]],[[36,64],[62,64],[88,62]]], db:[[87,62]] } ] },
+  { t:'Плечи «бабочка»', dose:'гантели по 1 кг',
+    tip:'Разводите руки в стороны до уровня плеч, локти чуть согнуты. Опускайте медленно, без рывков.',
+    labels:['Старт','Руки в стороны'],
+    poses:[
+      { head:[50,16], lines:[[[50,26],[50,58]],[[38,28],[62,28]],[[50,58],[44,90]],[[50,58],[56,90]],[[38,28],[35,46],[37,62]],[[62,28],[65,46],[63,62]]], db:[[37,63],[63,63]] },
+      { head:[50,16], lines:[[[50,26],[50,58]],[[38,28],[62,28]],[[50,58],[44,90]],[[50,58],[56,90]],[[38,28],[21,27],[6,32]],[[62,28],[79,27],[94,32]]], db:[[5,33],[95,33]] } ] },
+  { t:'Отжимания от скамьи на трицепс', dose:'',
+    tip:'Локти смотрят назад, спина близко к скамье. Опускайтесь до угла около 90° в локтях.',
+    labels:['Вверху','Внизу'],
+    poses:[
+      { head:[34,26], eq:[[[10,62],[34,62]],[[12,62],[12,90]],[[32,62],[32,90]]], lines:[[[36,38],[44,64]],[[36,38],[34,50],[30,62]],[[44,64],[66,78],[88,90]]] },
+      { head:[36,40], eq:[[[10,62],[34,62]],[[12,62],[12,90]],[[32,62],[32,90]]], lines:[[[38,52],[44,76]],[[38,52],[26,58],[30,62]],[[44,76],[66,84],[88,90]]] } ] },
+  { t:'Сгибание ног', dose:'вес 40–50%',
+    tip:'Бёдра прижаты к скамье. Сгибайте ноги до конца и опускайте медленно.',
+    labels:['Старт','Сгибание'],
+    poses:[
+      { head:[10,62], eq:[[[6,70],[84,70]],[[10,70],[10,90]],[[80,70],[80,90]]], lines:[[[18,64],[50,64]],[[50,64],[70,64],[88,64]]], db:[[88,63]] },
+      { head:[10,62], eq:[[[6,70],[84,70]],[[10,70],[10,90]],[[80,70],[80,90]]], lines:[[[18,64],[50,64]],[[50,64],[70,64],[72,46]]], db:[[72,46]] } ] },
+  { t:'Кубинский жим стоя', dose:'1–3 кг',
+    tip:'Три движения подряд: тяга гантелей к груди, поворот предплечий вверх, жим над головой. Вес лёгкий, без рывков.',
+    labels:['Тяга','Поворот','Жим'],
+    poses:[
+      { head:[50,18], lines:[[[50,28],[50,58]],[[38,30],[62,30]],[[50,58],[44,90]],[[50,58],[56,90]],[[38,30],[22,26],[36,38]],[[62,30],[78,26],[64,38]]], db:[[36,39],[64,39]] },
+      { head:[50,18], lines:[[[50,28],[50,58]],[[38,30],[62,30]],[[50,58],[44,90]],[[50,58],[56,90]],[[38,30],[22,28],[22,12]],[[62,30],[78,28],[78,12]]], db:[[22,10],[78,10]] },
+      { head:[50,18], lines:[[[50,28],[50,58]],[[38,30],[62,30]],[[50,58],[44,90]],[[50,58],[56,90]],[[38,30],[34,16],[36,5]],[[62,30],[66,16],[64,5]]], db:[[36,4],[64,4]] } ] },
+  { t:'Выпады в движении', dose:'',
+    tip:'Шаг вперёд, переднее колено над стопой, заднее почти касается пола. Спина прямая.',
+    labels:['Старт','Выпад'],
+    poses:[
+      { head:[50,12], lines:[[[50,24],[50,52]],[[50,52],[48,71],[46,90]],[[50,52],[52,71],[54,90]],[[50,26],[58,40],[52,50]]] },
+      { head:[46,18], lines:[[[46,30],[46,58]],[[46,58],[70,62],[70,90]],[[46,58],[30,82],[12,86]],[[46,32],[56,44],[48,54]]] } ] }
+];
+
+const CORE = [
+  { t:'Скручивания', dose:'',
+    tip:'Поясница прижата к полу, поднимайте лопатки. Шею руками не тяните.',
+    labels:['Старт','Скручивание'],
+    poses:[
+      { head:[12,82], lines:[[[20,84],[50,84]],[[50,84],[66,66],[80,84]],[[20,82],[12,78]]] },
+      { head:[22,66], lines:[[[30,72],[50,84]],[[50,84],[66,66],[80,84]],[[30,72],[20,66]]] } ] },
+  { t:'Планка', dose:'',
+    tip:'Тело — прямая линия, живот напряжён. Поясницу не прогибайте.',
+    labels:['Удержание'],
+    poses:[ { head:[16,58], lines:[[[24,62],[58,76],[74,82],[90,88]],[[24,62],[24,86],[40,86]]] } ] },
+  { t:'Подъём ног лёжа', dose:'',
+    tip:'Поясница прижата к полу. Опускайте ноги медленно, без рывка.',
+    labels:['Низ','Верх'],
+    poses:[
+      { head:[10,84], lines:[[[18,84],[44,84]],[[44,84],[92,84]]] },
+      { head:[10,84], lines:[[[18,84],[44,84]],[[44,84],[44,38]]] } ] },
+  { t:'«Лодочка»', dose:'',
+    tip:'Баланс на ягодицах, спина прямая. Корпус и ноги образуют букву V.',
+    labels:['Удержание'],
+    poses:[ { head:[34,32], lines:[[[38,44],[50,80]],[[50,80],[70,62],[88,44]],[[40,50],[66,54]]] } ] }
+];
+
+// Портфолио: кнопка «О проекте» и подпись в подвале. Выключить: enabled:false. Контакт — ссылка (например Telegram), пока пусто — кнопки связи нет.
+const PORTFOLIO = { enabled:true, author:'Дмитрий', contact:'', contactLabel:'Написать мне' };
+const PRICES = { group:35, ind:50 };   // BYN за занятие
+const TG_LINK = 'https://t.me/ordersecurity';
+const ACC   = {1:'в понедельник',2:'во вторник',3:'в среду',4:'в четверг',5:'в пятницу',6:'в субботу'};
+const BYDAY = {1:'MO',2:'TU',3:'WE',4:'TH',5:'FR',6:'SA'};
+const LEVELS = [
+  { km:0,   name:'Новичок' }, { km:10, name:'Малёк' }, { km:25, name:'Дельфин' },
+  { km:50,  name:'Акула' },   { km:100, name:'Легенда DTswim' }
+];
+const TIPS = [
+  'Пейте воду до и после тренировки: в бассейне жажда почти не чувствуется, но жидкость тело теряет.',
+  'Перед заплывом разомните плечи: круги руками вперёд и назад, по 10 раз в каждую сторону.',
+  'Выдыхайте в воду полностью — тогда вдох в сторону получается быстрым и спокойным.',
+  'Смотрите вниз, а не вперёд: голова в одной линии с телом, и ноги поднимутся сами.',
+  'Считайте гребки на 25 метров. Чем меньше гребков при том же темпе, тем эффективнее техника.',
+  'После тренировки растяните плечи и грудь — так мышцы быстрее восстанавливаются.',
+  'Ровный темп лучше рывков: старайтесь держать одно и то же время на каждом отрезке.',
+  'Ноги в кроле работают от бедра, а не от колена. Движения небольшие, носки вытянуты.',
+  'Восстановление — часть тренировки. Высыпайтесь, особенно перед утренними занятиями.',
+  'За 1,5–2 часа до тренировки лучше лёгкий перекус, а не плотный обед.',
+  'После толчка от бортика скользите вытянувшись: это самые «бесплатные» метры.',
+  'Записывайте результаты в дневник: прогресс заметен только на дистанции.'
+];
+const TECH = [
+  { c:'#4FD1D9', h:'Положение тела', p:'Тело вытянуто горизонтально, взгляд вниз, бёдра у поверхности. Чем ровнее линия, тем меньше сопротивление воды.' },
+  { c:'#FFC531', h:'Дыхание', p:'Выдох в воду идёт постоянно, вдох — поворотом головы в сторону. Одно ухо остаётся в воде.' },
+  { c:'#F0483E', h:'Гребок', p:'Держите высокий локоть: кисть заходит вперёд, ладонь тянет воду к бедру. Доводите гребок до конца.' },
+  { c:'#9be7ec', h:'Работа ног', p:'Ноги работают от бедра с небольшой амплитудой. Они удерживают тело у поверхности, а не толкают вперёд.' }
+];
+const FAQ = [
+  { q:'Сколько стоит первое занятие?', a:`Первое занятие бесплатное. Дальше — ${PRICES.group} BYN в группе (1–4 человека) или ${PRICES.ind} BYN на индивидуальной тренировке.` },
+  { q:'Когда проходят тренировки?', a:'Пн, ср, пт — утром 8:00–9:45 и вечером 15:00–16:45. Вт и чт — вечером 15:00–16:45. В субботу — утром 8:00–10:00.' },
+  { q:'Сколько человек в группе?', a:'От 1 до 4 человек. Тренер видит технику каждого и успевает её поправить.' },
+  { q:'Как узнать, есть ли свободные места?', a:'В расписании у каждого занятия показано, сколько мест свободно.' },
+  { q:'Что делают на суше?', a:'По понедельникам и пятницам — силовая на верх, по средам — на низ, по вторникам и четвергам — корпус и пресс. Все упражнения со схемами в разделе «Программы».' },
+  { q:'Что взять с собой?', a:'Обычно берут плавки или купальник, шапочку, очки и полотенце. Остальное подскажет тренер.' },
+  { q:'Как записаться?', a:'Напишите нам в Telegram: t.me/ordersecurity. Укажите имя и удобный день из расписания.' }
+];
+
+/* ============ ПОМОЩНИКИ ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(pointer: fine)').matches;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const parseT = t => { const m = x => { const [h, mi] = x.split(':').map(Number); return h * 60 + mi; }; const [a, b] = t.split('–'); return [m(a), m(b)]; };
+const capFirst = x => x.charAt(0).toUpperCase() + x.slice(1);
+const dowNow = new Date().getDay();
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2800);
+}
+
+/* ============ РАСПИСАНИЕ: карточки дней ============ */
+function slotHTML(sl, kind, dw){
+  if (!sl) return `<div class="slot none ${kind}"><span class="k">${kind === 'am' ? 'Утро' : 'Вечер'}</span><span>нет занятия</span></div>`;
+  const free = Math.max(0, CAPACITY - sl.taken);
+  const dots = Array.from({ length: CAPACITY }, (_, i) => `<i class="${i < free ? '' : 'x'}"></i>`).join('');
+  return `<button type="button" class="slot ${kind}${free === 0 ? ' full' : ''}" data-dow="${dw}" data-kind="${kind}" aria-pressed="false">
+    <span class="k">${kind === 'am' ? 'Утро' : 'Вечер'}</span>
+    <span class="t">${sl.t}</span>
+    <span class="free"><span class="dots">${dots}</span>${free > 0 ? `свободно ${free} из ${CAPACITY}` : 'мест нет'}</span>
+  </button>`;
+}
+const WAVE = '<svg class="wave" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12 Q 18.75 0 37.5 12 T 75 12 T 112.5 12 T 150 12 T 187.5 12 T 225 12 T 262.5 12 T 300 12" fill="none" stroke="#7FE9F0" stroke-width="2"/></svg>';
+$('#days').innerHTML = SCHEDULE.map(d => `
+  <article class="card day${d.dow === dowNow ? ' today' : ''}">
+    <span class="big" aria-hidden="true">${d.short}</span>
+    ${d.dow === dowNow ? '<span class="tag">Сегодня</span>' : ''}
+    <h3>${d.full}</h3>
+    ${slotHTML(d.am, 'am', d.dow)}${slotHTML(d.pm, 'pm', d.dow)}
+    ${WAVE}
+  </article>`).join('');
+$$('#slotFilter [data-fl]').forEach(b => b.addEventListener('click', () => {
+  $('#days').dataset.fl = b.dataset.fl;
+  $$('#slotFilter [data-fl]').forEach(x => x.setAttribute('aria-pressed', x === b));
+}));
+function updateIcsBtn(){
+  const n = $$('.slot.pick').length;
+  $('#icsBtn').textContent = n ? `Добавить выбранные в календарь (${n})` : 'Добавить все занятия в календарь';
+}
+$('#days').addEventListener('click', e => {
+  const b = e.target.closest('button.slot'); if (!b) return;
+  const on = b.classList.toggle('pick'); b.setAttribute('aria-pressed', on); updateIcsBtn();
+});
+$('#icsBtn').addEventListener('click', () => {
+  const picks = $$('.slot.pick').map(b => b.dataset.dow + b.dataset.kind);
+  const now = new Date();
+  const fmtD = d => `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}T${pad2(d.getHours())}${pad2(d.getMinutes())}00`;
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//DTswim//RU', 'CALSCALE:GREGORIAN'];
+  let cnt = 0;
+  SCHEDULE.forEach(day => ['am', 'pm'].forEach(k => {
+    const sl = day[k]; if (!sl) return;
+    if (picks.length && !picks.includes(day.dow + k)) return;
+    const [a, b] = parseT(sl.t);
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    while (d.getDay() !== day.dow) d.setDate(d.getDate() + 1);
+    const st = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, a);
+    const en = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, b);
+    L.push('BEGIN:VEVENT', `UID:dtswim-${day.dow}-${k}@dtswim`, `DTSTAMP:${stamp}`,
+      `DTSTART:${fmtD(st)}`, `DTEND:${fmtD(en)}`, `RRULE:FREQ=WEEKLY;BYDAY=${BYDAY[day.dow]}`,
+      'SUMMARY:Тренировка DTswim', 'DESCRIPTION:Школа плавания DTswim. Запись: ' + TG_LINK, 'END:VEVENT');
+    cnt++;
+  }));
+  L.push('END:VCALENDAR');
+  const blob = new Blob([L.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'dtswim-raspisanie.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast(`Файл календаря скачан: занятий ${cnt}`);
+});
+
+/* ============ БЛИЖАЙШАЯ ТРЕНИРОВКА ============ */
+function nextTraining(){
+  const now = new Date(); let best = null;
+  for (let off = 0; off < 8; off++){
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + off);
+    const day = SCHEDULE.find(x => x.dow === d.getDay()); if (!day) continue;
+    for (const kind of ['am', 'pm']){
+      const sl = day[kind]; if (!sl) continue;
+      const [a, b] = parseT(sl.t);
+      const st = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, a);
+      const en = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, b);
+      if (en <= now) continue;
+      if (!best || st < best.st) best = { st, en, day, sl, off };
+    }
+  }
+  return best;
+}
+let nextKey = '';
+function updateNext(){
+  const el = $('#nextCard'); const n = nextTraining(); if (!el || !n) return;
+  const now = new Date(), live = n.st <= now, key = n.st.getTime() + (live ? 'L' : 'W');
+  if (key !== nextKey){
+    nextKey = key;
+    const when = n.off === 0 ? 'сегодня' : (n.off === 1 ? 'завтра' : ACC[n.day.dow]);
+    const free = Math.max(0, CAPACITY - n.sl.taken);
+    el.innerHTML = `<span class="pulse" aria-hidden="true"></span><div><small>${live ? 'Тренировка идёт сейчас' : 'Ближайшая тренировка'}</small><b>${capFirst(when)}, ${n.sl.t}</b><span class="free"> · свободно ${free} из ${CAPACITY}</span></div><div><small id="nLab"></small><span class="led" id="nCount"></span></div>`;
+  }
+  const ms = live ? n.en - now : n.st - now, tt = Math.max(0, Math.floor(ms / 1000));
+  const dd = Math.floor(tt / 86400), hh = Math.floor(tt % 86400 / 3600), mm = Math.floor(tt % 3600 / 60), ss = tt % 60;
+  $('#nLab').textContent = live ? 'до финиша' : 'до старта';
+  $('#nCount').textContent = `${dd ? dd + 'д ' : ''}${pad2(hh)}:${pad2(mm)}:${pad2(ss)}`;
+}
+updateNext(); setInterval(updateNext, 1000);
+
+/* ============ ПРОГРАММЫ ============ */
+$('#barset').innerHTML = WATERPLAN.map((w, k) => `<div class="seg" style="--m:${w.m};--c:${w.c}"><span>${w.m} м</span></div>`).join('');
+$('#legend').innerHTML = WATERPLAN.map(w => `<div style="--c:${w.c}"><b>${w.name} · ${w.m} м</b><span>${w.text}</span></div>`).join('');
+$('#techGrid').innerHTML = TECH.map((t, i) => `<article class="card tech" style="--c:${t.c}"><span class="ix">0${i + 1}</span><h4>${t.h}</h4><p>${t.p}</p></article>`).join('');
+
+const fmtTime = sec => { sec = Math.round(sec); const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`; };
+function calcPace(){
+  const pace = (+$('#pcMin').value || 0) * 60 + (+$('#pcSec').value || 0);
+  if (pace <= 0){ $('#paceRes').innerHTML = ''; $('#paceParts').innerHTML = ''; return; }
+  const row = (lab, m, hl) => `<div class="${hl ? 'hl' : ''}"><small>${lab}</small><b>${fmtTime(pace * m / 100)}</b></div>`;
+  $('#paceRes').innerHTML = row('50 м', 50) + row('400 м', 400) + row('1 км', 1000) + row('4 км — вся тренировка', 4000, true);
+  $('#paceParts').innerHTML = WATERPLAN.map(w => `<div style="--c:${w.c}"><b>${w.name}</b><span>${w.m} м ≈ ${fmtTime(pace * w.m / 100)}</span></div>`).join('');
+}
+$('#pcMin').addEventListener('input', calcPace); $('#pcSec').addEventListener('input', calcPace); calcPace();
+
+/* схемы упражнений (вектор — чёткие на любом экране) */
+const poly = (pts, c) => `<polyline class="${c}" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+function scheme(poses, labels){
+  const PW = 100, GAP = 26, n = poses.length, W = n * PW + (n - 1) * GAP;
+  let o = `<svg viewBox="0 0 ${W} 112" role="img" aria-label="Схема: ${labels.join(' → ')}">`;
+  poses.forEach((p, i) => {
+    const x = i * (PW + GAP);
+    o += `<g transform="translate(${x} 0)"><line x1="0" y1="92" x2="100" y2="92" stroke="rgba(79,209,217,.45)" stroke-width="1.5"/>`;
+    (p.eq || []).forEach(l => o += poly(l, 'q'));
+    p.lines.forEach(l => o += poly(l, 'b'));
+    o += `<circle cx="${p.head[0]}" cy="${p.head[1]}" r="6" fill="#EAFBFD"/>`;
+    (p.db || []).forEach(d => o += `<circle cx="${d[0]}" cy="${d[1]}" r="3.8" fill="#FFC531"/>`);
+    o += `<text x="50" y="107" text-anchor="middle">${labels[i]}</text></g>`;
+    if (i < n - 1) o += `<path d="M${x + PW + 5} 52h14m-5-5 5 5-5 5" stroke="#FFC531" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  return o + '</svg>';
+}
+const canAnimate = e => e.poses.length > 1 && e.poses.every(p =>
+  p.lines.length === e.poses[0].lines.length && p.lines.every((l, k) => l.length === e.poses[0].lines[k].length) &&
+  (p.db || []).length === (e.poses[0].db || []).length);
+const exCard = (e, i, numbered) => `
+  <article class="card ex">
+    <div class="ex-top"><h4>${e.t}</h4>${numbered ? `<span class="n">${i + 1}</span>` : ''}</div>
+    ${e.dose ? `<span class="dose">${e.dose}</span>` : ''}
+    <div class="scheme">${scheme(e.poses, e.labels)}</div>
+    ${canAnimate(e) ? '<button type="button" class="play" aria-pressed="false">▶ Показать движение</button>' : ''}
+    <p>${e.tip}</p>
+  </article>`;
+$('#strGrid').innerHTML = STRENGTH.map((e, i) => exCard(e, i, true)).join('');
+$('#coreGrid').innerHTML = CORE.map((e, i) => exCard(e, i, false)).join('');
+$$('#strGrid .ex').forEach((el, i) => el._ex = STRENGTH[i]);
+$$('#coreGrid .ex').forEach((el, i) => el._ex = CORE[i]);
+function dryTab(which){
+  const core = which === 'core';
+  $('#t-core').setAttribute('aria-selected', core); $('#t-str').setAttribute('aria-selected', !core);
+  $('#d-core').hidden = !core; $('#d-str').hidden = core;
+  $$('.ex').forEach(stopScheme);
+  document.dispatchEvent(new CustomEvent('dt:layout', { detail: { panel: core ? '#d-core' : '#d-str' } }));
+}
+$('#t-core').addEventListener('click', () => dryTab('core'));
+$('#t-str').addEventListener('click', () => dryTab('str'));
+
+function stopScheme(card){
+  if (!card._raf && !card._static) return;
+  cancelAnimationFrame(card._raf); card._raf = 0;
+  if (card._static){ $('.scheme', card).innerHTML = card._static; card._static = null; }
+  const b = $('.play', card); if (b){ b.textContent = '▶ Показать движение'; b.setAttribute('aria-pressed', 'false'); }
+}
+function playScheme(card){
+  const e = card._ex, box = $('.scheme', card), btn = $('.play', card);
+  if (card._static){ stopScheme(card); return; }
+  card._static = box.innerHTML;
+  const P = e.poses, n = P.length, seq = n === 2 ? [0, 1, 0] : [0, 1, 2, 1, 0];
+  const ns = 'http://www.w3.org/2000/svg';
+  box.innerHTML = '<svg viewBox="0 0 100 114"></svg>';
+  const svg = $('svg', box);
+  const mk = (tag, attrs) => { const el = document.createElementNS(ns, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); svg.appendChild(el); return el; };
+  mk('line', { x1: 0, y1: 92, x2: 100, y2: 92, stroke: 'rgba(79,209,217,.45)', 'stroke-width': 1.5 });
+  (P[0].eq || []).forEach(l => mk('polyline', { class: 'q', points: l.map(p => p.join(',')).join(' ') }));
+  const lines = P[0].lines.map(() => mk('polyline', { class: 'b' }));
+  const dbs = (P[0].db || []).map(() => mk('circle', { r: 3.8, fill: '#FFC531' }));
+  const head = mk('circle', { r: 6, fill: '#EAFBFD' });
+  const lab = mk('text', { x: 50, y: 108, 'text-anchor': 'middle', style: 'font-size:6px' });
+  btn.textContent = '■ Остановить'; btn.setAttribute('aria-pressed', 'true');
+  const t0 = performance.now();
+  function loop(now){
+    if (!card.isConnected || card.closest('[hidden]')){ stopScheme(card); return; }
+    const u = (((now - t0) / 1000) * .42 % 1) * (seq.length - 1), i = Math.floor(u), f = (1 - Math.cos((u - i) * Math.PI)) / 2;
+    const A = P[seq[i]], B = P[seq[i + 1]];
+    lines.forEach((el, k) => el.setAttribute('points', A.lines[k].map((p, j) => lerp(p[0], B.lines[k][j][0], f).toFixed(1) + ',' + lerp(p[1], B.lines[k][j][1], f).toFixed(1)).join(' ')));
+    dbs.forEach((el, k) => { el.setAttribute('cx', lerp(A.db[k][0], B.db[k][0], f)); el.setAttribute('cy', lerp(A.db[k][1], B.db[k][1], f)); });
+    head.setAttribute('cx', lerp(A.head[0], B.head[0], f)); head.setAttribute('cy', lerp(A.head[1], B.head[1], f));
+    lab.textContent = e.labels[seq[Math.round(u)]];
+    card._raf = requestAnimationFrame(loop);
+  }
+  card._raf = requestAnimationFrame(loop);
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('.play'); if (b) playScheme(b.closest('.ex')); });
+
+/* дневник пловца */
+const DKEY = 'dtswim_diary_v1';
+let diary = [];
+try { diary = JSON.parse(localStorage.getItem(DKEY) || '[]'); } catch (e) { diary = []; }
+const dSave = () => { try { localStorage.setItem(DKEY, JSON.stringify(diary)); } catch (e) {} };
+const mondayKey = str => { const [y, m, d] = str.split('-').map(Number); const dt = new Date(y, m - 1, d); dt.setDate(dt.getDate() - ((dt.getDay() + 6) % 7)); return ymd(dt); };
+const levelOf = km => LEVELS.reduce((a, l) => km >= l.km ? l : a, LEVELS[0]);
+function diaryStats(){
+  const km = diary.reduce((a, e) => a + (e.type === 'water' ? e.km : 0), 0);
+  const weeks = new Set(diary.map(e => mondayKey(e.date)));
+  let w = new Date(); w.setDate(w.getDate() - ((w.getDay() + 6) % 7));
+  if (!weeks.has(ymd(w))) w.setDate(w.getDate() - 7);
+  let streak = 0; while (weeks.has(ymd(w))){ streak++; w.setDate(w.getDate() - 7); }
+  return { km, sessions: diary.length, streak };
+}
+function renderDiary(){
+  const st = diaryStats(), lv = levelOf(st.km), nx = LEVELS[LEVELS.indexOf(lv) + 1];
+  $('#dLevel').textContent = lv.name;
+  $('#dStats').innerHTML = `<div><small>проплыто</small><b>${(Math.round(st.km * 10) / 10).toString().replace('.', ',')} км</b></div><div><small>тренировок</small><b>${st.sessions}</b></div><div><small>недель подряд</small><b>${st.streak}</b></div>`;
+  const pct = nx ? (st.km - lv.km) / (nx.km - lv.km) * 100 : 100;
+  requestAnimationFrame(() => { $('#dBar').style.width = clamp01(pct / 100) * 100 + '%'; });
+  $('#dNext').textContent = nx ? `До уровня «${nx.name}»: ${(Math.round((nx.km - st.km) * 10) / 10).toString().replace('.', ',')} км` : 'Максимальный уровень — вы легенда!';
+  const list = [...diary].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id).slice(0, 8);
+  $('#dList').innerHTML = list.length ? list.map(e => {
+    const [y, m, d] = e.date.split('-').map(Number);
+    const ds = new Date(y, m - 1, d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    const what = e.type === 'water' ? `Вода · ${String(e.km).replace('.', ',')} км` : 'Суша';
+    return `<li><span>${ds}</span><span>${what}</span><button type="button" data-del="${e.id}" aria-label="Удалить запись">×</button></li>`;
+  }).join('') : '<li class="empty-d">Пока пусто. Запишите первую тренировку — и начнётся ваш путь.</li>';
+}
+$('#dDate').value = ymd(new Date());
+$('#dType').addEventListener('change', () => { const dry = $('#dType').value === 'dry'; $('#dKm').disabled = dry; $('#dKm').value = dry ? 0 : 4; });
+$('#dAdd').addEventListener('click', () => {
+  const type = $('#dType').value, date = $('#dDate').value || ymd(new Date());
+  let km = type === 'water' ? parseFloat(String($('#dKm').value).replace(',', '.')) : 0;
+  if (isNaN(km) || km < 0 || km > 30){ toast('Проверьте дистанцию: от 0 до 30 км'); return; }
+  km = Math.round(km * 10) / 10;
+  const before = levelOf(diaryStats().km).name;
+  diary.push({ id: Date.now(), date, type, km }); dSave(); renderDiary();
+  const after = levelOf(diaryStats().km).name;
+  toast(after !== before ? `Новый уровень: ${after}!` : 'Тренировка записана');
+});
+$('#dList').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (!b) return; diary = diary.filter(x => String(x.id) !== b.dataset.del); dSave(); renderDiary(); });
+renderDiary();
+
+/* ============ ТРЕНЕРЫ: стопка карточек ============ */
+$('#coachStack').innerHTML = COACHES.map((c, i) => `
+  <article class="card coach" style="--i:${i}">
+    <div class="mono" aria-hidden="true"><b>${c.initials}</b></div>
+    <div>
+      <span class="rank">${c.ach[0] || ''}</span>
+      <h3>${c.name}</h3>
+      <p class="role">${c.role}</p>
+      <ul>${c.ach.slice(1).map(a => `<li>${a}</li>`).join('')}</ul>
+    </div>
+    <span class="ix" aria-hidden="true">0${i + 1}</span>
+  </article>`).join('');
+
+/* ============ ЦЕНЫ ============ */
+$$('[data-price]').forEach(e => { const k = e.dataset.price; e.textContent = k === '0' ? 0 : PRICES[k]; });
+let pcFmt = 'group';
+function calcPrice(){
+  const n = +$('#pcR').value, one = PRICES[pcFmt];
+  $('#pcN').textContent = n; $('#pcOne').textContent = one + ' BYN'; $('#pcTotal').textContent = (one * n * 4) + ' BYN';
+}
+$$('#priceCalc [data-f]').forEach(b => b.addEventListener('click', () => {
+  pcFmt = b.dataset.f; $$('#priceCalc [data-f]').forEach(x => x.setAttribute('aria-pressed', x === b)); calcPrice();
+}));
+$('#pcR').addEventListener('input', calcPrice); calcPrice();
+
+/* ============ СОВЕТ ДНЯ, ВОПРОСЫ, ЗАЯВКА ============ */
+let tipI = Math.floor(Date.now() / 86400000) % TIPS.length;
+function showTip(anim){
+  const p = $('#tipText');
+  const set = () => { p.textContent = TIPS[tipI]; $('#tipN').textContent = `${tipI + 1}/${TIPS.length}`; p.classList.remove('sw'); };
+  if (anim && !reduce){ p.classList.add('sw'); setTimeout(set, 280); } else set();
+}
+$('#tipNext').addEventListener('click', () => { tipI = (tipI + 1) % TIPS.length; showTip(true); });
+showTip(false);
+$('#faq').innerHTML = FAQ.map(f => `<details class="q"><summary>${f.q}</summary><p>${f.a}</p></details>`).join('');
+$('#faq').addEventListener('toggle', () => document.dispatchEvent(new CustomEvent('dt:layout')), true);
+
+$('#rSlot').innerHTML = '<option value="">Любое удобное</option>' + SCHEDULE.flatMap(d => ['am', 'pm'].filter(k => d[k]).map(k =>
+  `<option>${d.full}, ${k === 'am' ? 'утро' : 'вечер'} ${d[k].t}</option>`)).join('');
+function buildReq(){
+  const name = $('#rName').value.trim(), slot = $('#rSlot').value, fmt = $('#rFmt').value === 'ind' ? 'индивидуально' : 'в группе';
+  $('#rText').value = `Здравствуйте!${name ? ' Меня зовут ' + name + '.' : ''} Хочу записаться на бесплатное первое занятие${slot ? ': ' + slot : ''}, формат — ${fmt}. Подскажите, пожалуйста, есть ли свободные места?`;
+}
+['#rName', '#rFmt', '#rSlot'].forEach(q => $(q).addEventListener('input', buildReq)); buildReq();
+async function copyReq(){
+  const txt = $('#rText').value;
+  try { await navigator.clipboard.writeText(txt); return true; }
+  catch (e) { try { $('#rText').select(); return document.execCommand('copy'); } catch (e2) { return false; } }
+}
+$('#rCopy').addEventListener('click', async () => { toast(await copyReq() ? 'Текст скопирован' : 'Выделите текст и скопируйте вручную'); });
+$('#rSend').addEventListener('click', async () => {
+  const w = window.open(TG_LINK, '_blank', 'noopener');
+  toast(await copyReq() ? 'Текст скопирован — вставьте его в чат' : 'Откройте чат и напишите нам');
+  if (!w) location.href = TG_LINK;
+});
+
+/* ============ ЦВЕТ ШАПОЧКИ (акцент сайта) ============ */
+function applyCap(hex){ document.documentElement.style.setProperty('--yellow', hex); $$('[data-cap]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cap === hex)); }
+$$('[data-cap]').forEach(b => {
+  b.style.setProperty('--c', b.dataset.cap);
+  b.addEventListener('click', () => { applyCap(b.dataset.cap); try { localStorage.setItem('dtswim_cap', b.dataset.cap); } catch (e) {} toast('Цвет шапочки: ' + b.getAttribute('aria-label')); });
+});
+let capSaved = null; try { capSaved = localStorage.getItem('dtswim_cap'); } catch (e) {}
+applyCap(capSaved || '#FFC531');
+
+/* ============ О ПРОЕКТЕ (портфолио) ============ */
+(function(){
+  const btn = $('#aboutBtn'), dlg = $('#about'), card = $('#aboutCard'), credit = $('#credit');
+  if (!PORTFOLIO.enabled){ credit.style.display = 'none'; return; }
+  btn.hidden = false;
+  const contact = PORTFOLIO.contact ? `<a class="btn main" href="${PORTFOLIO.contact}" target="_blank" rel="noopener">${PORTFOLIO.contactLabel}</a>` : '';
+  credit.innerHTML = `Сайт разработал ${PORTFOLIO.author}` + (PORTFOLIO.contact ? ` · <a href="${PORTFOLIO.contact}" target="_blank" rel="noopener">${PORTFOLIO.contactLabel}</a>` : '');
+  card.innerHTML = `<button class="a-close" type="button" aria-label="Закрыть">×</button>
+    <h2 id="aboutTitle">О проекте</h2>
+    <p>Сайт школы плавания DTswim: расписание со свободными местами, программы на воде и на суше, тренеры, цены и запись в Telegram.</p>
+    <div class="a-grid">
+      <div><b>Погружение по прокрутке</b><span>Фон — живая вода на WebGL: сначала вид сверху на дорожки, потом нырок сквозь поверхность и спуск до дна.</span></div>
+      <div><b>Скролл-переходы</b><span>Плавная прокрутка, закреплённые сцены, горизонтальное расписание, стопка карточек тренеров, буквы, которые собираются и разлетаются.</span></div>
+      <div><b>Полезные инструменты</b><span>Калькуляторы стоимости и темпа, календарь расписания, заявка в Telegram, дневник с уровнями.</span></div>
+      <div><b>Для телефона</b><span>Адаптивная вёрстка, нижнее меню, качество воды подстраивается под устройство.</span></div>
+    </div>
+    <ul class="a-tech"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>WebGL / GLSL</li><li>GSAP ScrollTrigger</li><li>Lenis</li><li>Один файл</li></ul>
+    <p style="margin-bottom:${contact ? 16 : 0}px">Автор: ${PORTFOLIO.author}.</p>${contact}`;
+  let lastFocus = null;
+  const open = () => { lastFocus = document.activeElement; dlg.hidden = false; $('.a-close', card).focus(); if (window.DT_LENIS) DT_LENIS.stop(); };
+  const close = () => { dlg.hidden = true; if (lastFocus) lastFocus.focus(); if (window.DT_LENIS) DT_LENIS.start(); };
+  btn.addEventListener('click', open);
+  dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.a-close')) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !dlg.hidden) close(); });
+})();
+
+/* ============ РАЗБИВКА ТЕКСТА ДЛЯ АНИМАЦИЙ ============ */
+// буквы: заголовки-гиганты; слова: манифест; слова в «масках»: обычные заголовки
+function splitChars(el){
+  const txt = el.textContent; el.textContent = '';
+  const hd = el.closest('h1,h2,h3');                              // экранным чтецам — целое слово, а не буквы
+  if (hd && !hd.hasAttribute('aria-label')) hd.setAttribute('aria-label', txt);
+  txt.split(/(\s+)/).forEach(part => {
+    if (!part) return;
+    if (/^\s+$/.test(part)){ el.appendChild(document.createTextNode(' ')); return; }
+    const w = document.createElement('span'); w.className = 'w'; w.setAttribute('aria-hidden', 'true');
+    [...part].forEach(c => { const s = document.createElement('span'); s.className = 'ch'; s.textContent = c; w.appendChild(s); });
+    el.appendChild(w);
+  });
+}
+function splitWords(el, mask){
+  const txt = el.textContent.trim().replace(/\s+/g, ' '); el.textContent = '';
+  txt.split(' ').forEach((word, i) => {
+    if (i) el.appendChild(document.createTextNode(' '));
+    const w = document.createElement('span');
+    if (mask){ w.className = 'ln'; w.style.display = 'inline-block'; const inner = document.createElement('span'); inner.textContent = word; w.appendChild(inner); }
+    else { w.className = 'w'; w.textContent = word; if (/бесплатно|четырёх|каждого/i.test(word)) w.style.color = 'var(--yellow)'; }
+    el.appendChild(w);
+  });
+}
+$$('[data-chars]').forEach(splitChars);
+$$('[data-words]').forEach(el => splitWords(el, false));
+$$('[data-lines]').forEach(el => splitWords(el, true));
+// «ворота» между разделами: буквы
+$$('.g-word').forEach(splitChars);
+
+/* =====================================================================
+   ЖИВАЯ ВОДА — один шейдер на весь экран, без моделей и полигонов.
+   Глубина (0…1) приходит от прокрутки: 0 — смотрим на воду сверху,
+   0,05–0,17 — нырок сквозь поверхность, дальше — под водой до самого дна.
+   ===================================================================== */
+const WATER = (() => {
+  const cv = document.getElementById('water');
+  const W = { ok: false, depth: 0, vel: 0, travel: 0, ptr: [0, 0], render(){}, resize(){} };
+  if (!cv) return W;
+  let gl = null;
+  try { gl = cv.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: false }); } catch (e) {}
+  if (!gl) { document.documentElement.classList.add('no-gl'); return W; }
+
+  const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+  const FS = `
+precision highp float;
+uniform vec2 uRes;
+uniform float uTime, uDepth, uVel, uTravel;
+uniform vec2 uPtr;
+
+float h12(vec2 p){ vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+vec2 h22(vec2 p){ vec3 q = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xx + q.yz) * q.zy); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+  return mix(mix(h12(i), h12(i + vec2(1., 0.)), u.x), mix(h12(i + vec2(0., 1.)), h12(i + vec2(1., 1.)), u.x), u.y);
+}
+float fbm(vec2 p){ float a = .5, s = 0.; for (int i = 0; i < 4; i++){ s += a * vnoise(p); p = p * 2.03 + vec2(1.7, 9.2); a *= .5; } return s; }
+
+/* каустика: края анимированных ячеек Вороного дают ту самую световую сетку на дне */
+float cell(vec2 p, float t){
+  vec2 i = floor(p), f = fract(p); float d1 = 9., d2 = 9.;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++){
+    vec2 g = vec2(float(x), float(y)), o = h22(i + g);
+    o = .5 + .42 * sin(t + 6.2831 * o);
+    vec2 r = g + o - f; float d = dot(r, r);
+    if (d < d1){ d2 = d1; d1 = d; } else if (d < d2) d2 = d;
+  }
+  return sqrt(d2) - sqrt(d1);
+}
+float caustic(vec2 p, float t, float soft){
+  // сильное «плавное» искривление пространства: края ячеек становятся живыми кривыми, а не многоугольниками
+  vec2 w = p + .55 * (vec2(vnoise(p * 1.3 + vec2(t * .25, 0.)), vnoise(p * 1.3 + vec2(7.1, -t * .22))) - .5);
+  w += .18 * vec2(sin(w.y * 2.3 + t * .9), cos(w.x * 2.1 - t * .8));
+  float a = cell(w, t * .9), b = cell(w * 1.41 + 2.3, t * 1.15 + 1.);
+  float s2 = .0035 + soft * soft * 4.;
+  return exp(-a * a / s2) * .85 + exp(-b * b / (s2 * .8)) * .5 + exp(-a * a / (s2 * 9.)) * .25;
+}
+
+/* плитка дна + разметка дорожек (линии с «Т» на концах), координаты в метрах */
+vec3 poolFloor(vec2 q, float t, float soft){
+  vec3 tileA = vec3(.10, .55, .72), tileB = vec3(.08, .48, .66);
+  vec2 g = fract(q / .5);
+  float grout = smoothstep(.0, .035 + soft, g.x) * smoothstep(.0, .035 + soft, g.y) * smoothstep(.0, .035 + soft, 1. - g.x) * smoothstep(.0, .035 + soft, 1. - g.y);
+  vec3 c = mix(tileA, tileB, h12(floor(q / .5)) * .6);
+  c *= mix(.78, 1., grout);
+  float lx = abs(fract(q.x / 2.5) - .5) * 2.5;            // дорожка 2,5 м, линия по центру
+  float line = 1. - smoothstep(.12, .14 + soft, lx);
+  float tz = abs(fract((q.y + 6.) / 25.) - .5) * 25.;       // «Т» у стенок раз в 25 м
+  float tee = (1. - smoothstep(.12, .14 + soft, abs(tz - 11.2))) * (1. - smoothstep(.45, .5 + soft, lx));
+  c = mix(c, vec3(.02, .13, .33), max(line * step(tz, 11.3), tee));
+  return c;
+}
+
+vec3 bubbles(vec2 uv, float t, float amount, float vel){
+  vec3 acc = vec3(0.);
+  for (int L = 0; L < 3; L++){
+    float fl = float(L), sc = 5. + fl * 4.;
+    vec2 p = uv * sc; p.y -= t * (.35 + fl * .22) * (1. + vel * 2.5) + fl * 7.3;
+    vec2 id = floor(p), f = fract(p) - .5;
+    float h = h12(id + fl * 13.1);
+    if (h > amount) continue;
+    vec2 o = (h22(id * 1.7 + fl) - .5) * .5; o.x += .12 * sin(t * 2. + h * 30.);
+    float r = .07 + .1 * h22(id).x;
+    float d = length(f - o);
+    float ring = smoothstep(r, r - .03, d) * (.25 + .75 * smoothstep(r - .05, r, d));
+    float hi = smoothstep(r * .45, 0., length(f - o - vec2(-r * .35, r * .35)));
+    acc += vec3(.75, .95, 1.) * (ring * .55 + hi * .8) / (1. + fl * .6);
+  }
+  return acc;
+}
+
+vec3 surfaceView(vec2 uv, float t, float soft){
+  /* вид сверху на воду: преломлённое дно, каустика, блики солнца */
+  vec2 p = uv * 2.2;
+  float e = .02;
+  float h0 = fbm(p * 1.3 + vec2(t * .12, -t * .08));
+  float hx = fbm((p + vec2(e, 0.)) * 1.3 + vec2(t * .12, -t * .08));
+  float hy = fbm((p + vec2(0., e)) * 1.3 + vec2(t * .12, -t * .08));
+  vec2 n = vec2(hx - h0, hy - h0) / e;
+  vec2 q = uv * 5.5 + n * .12 + vec2(1.25, 3.);
+  vec3 c = poolFloor(q, t, soft);
+  float k = caustic(q * 1.5, t * 1.1, soft);
+  c += vec3(.55, .95, 1.) * k * .3;
+  c = mix(c, vec3(.02, .20, .33), .42);                       // толща воды
+  float sun = smoothstep(.7, .97, vnoise(p * 9. + n * 3. + t * .9)) * smoothstep(.5, .95, h0 + .25);
+  c += vec3(1., .97, .88) * sun * .45;
+  c += vec3(.6, .85, 1.) * .12 * smoothstep(.2, .9, length(n));
+  return c;
+}
+
+vec3 underView(vec2 uv, float t, float k, float soft){
+  /* под водой: свет поверхности сверху, лучи, дно с разметкой в перспективе, частицы */
+  float pitch = mix(-.42, .38, smoothstep(.05, .9, k));          // сначала смотрим вверх на свет, к концу — вниз на дно
+  float y0 = mix(-.5, -1.45, k);
+  vec3 ro = vec3(.4 + uPtr.x * .15, y0, uTravel);
+  vec3 rd = normalize(vec3(uv.x, uv.y + uPtr.y * .05, 1.55));
+  float cp = cos(pitch), sp = sin(pitch);
+  rd = vec3(rd.x, rd.y * cp - rd.z * sp, rd.y * sp + rd.z * cp);
+  vec3 deep = mix(vec3(.015, .12, .21), vec3(.006, .04, .085), k);
+  vec3 shal = mix(vec3(.08, .45, .60), vec3(.04, .25, .38), k);
+  vec3 col = mix(deep, shal, smoothstep(-.55, .45, rd.y));
+  if (rd.y > 0.){
+    float ts = (0. - ro.y) / rd.y; vec3 hp = ro + rd * ts;
+    float c = caustic(hp.xz * 1.6, t * 1.2, soft + ts * .02);
+    vec3 surf = vec3(.40, .80, .92) * (.38 + .5 * c);
+    float win = smoothstep(.55, .95, rd.y);                       // «окно Снелла»: прямо над головой светлее
+    surf += vec3(.9, 1., 1.) * win * .35;
+    col = mix(col, surf, exp(-ts * .12) * .9);
+  } else {
+    float tf = (-2.05 - ro.y) / rd.y; vec3 hp = ro + rd * tf;
+    vec3 fc = poolFloor(hp.xz, t, soft + tf * .004);
+    fc += vec3(.6, .95, 1.) * caustic(hp.xz * 2.4, t * 1.1, soft + tf * .03) * .5 * (1. - k * .35);
+    fc = mix(fc, deep, .25);
+    col = mix(col, fc, exp(-tf * .16));
+  }
+  // лучи света от поверхности
+  vec2 sp2 = uv - vec2(.35 + uPtr.x * .1, 1.5);
+  float ang = atan(sp2.x, -sp2.y);
+  float rays = vnoise(vec2(ang * 9., t * .22)) * vnoise(vec2(ang * 23. + 4., -t * .15));
+  rays = smoothstep(.12, .7, rays) * smoothstep(-.8, .9, uv.y) * (1. - k * .55);
+  col += vec3(.45, .82, .95) * rays * (.32 + .2 * abs(uVel));
+  // взвесь в воде
+  vec2 pp = uv * 18. + vec2(t * .15, t * .1 + uTravel * .4);
+  float spk = smoothstep(.985, 1., h12(floor(pp))) * smoothstep(.45, 0., length(fract(pp) - .5));
+  col += vec3(.7, .9, 1.) * spk * .35;
+  return col;
+}
+
+void main(){
+  vec2 fc = gl_FragCoord.xy;
+  vec2 uv = (fc - .5 * uRes) / uRes.y;
+  float soft = 1.6 / uRes.y;                                   // ширина сглаживания — на один-два пикселя
+  float t = uTime;
+  float d = clamp(uDepth, 0., 1.);
+  float dive = smoothstep(.05, .17, d);
+  vec3 col;
+  if (dive < .999){
+    vec2 su = uv * (1. - .55 * dive) + vec2(0., -.1 * dive);
+    su += uv * .04 * sin(length(uv) * 10. - t * 3.) * dive;
+    vec3 s = surfaceView(su, t, soft * 3.);
+    s += vec3(.8, .95, 1.) * smoothstep(.2, .55, dive) * smoothstep(.85, .55, dive) * .7;   // вспышка входа в воду
+    col = s;
+    if (dive > .35){ vec3 u = underView(uv, t, 0., soft * 3.); col = mix(s, u, smoothstep(.35, 1., dive)); }
+  } else col = underView(uv, t, clamp((d - .17) / .83, 0., 1.), soft * 3.);
+  float bAmt = mix(.06, .22, smoothstep(.15, 1., d)) + .5 * smoothstep(.25, .6, dive) * smoothstep(1., .6, dive) + abs(uVel) * .15;
+  if (d > .06) col += bubbles(uv, t, bAmt, abs(uVel)) * smoothstep(.06, .2, d);
+  float vig = smoothstep(1.25, .35, length(uv * vec2(.85, 1.)));
+  col *= mix(.72, 1., vig);
+  col += (h12(fc + fract(t) * 91.) - .5) / 255.;               // дизеринг: плавные градиенты без «ступенек»
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+  function sh(type, src){
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)){ console.warn('DTswim water:', gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  const vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs){ document.documentElement.classList.add('no-gl'); return W; }
+  const pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+  if (!gl.getProgramParameter(pr, gl.LINK_STATUS)){ console.warn('DTswim water link:', gl.getProgramInfoLog(pr)); document.documentElement.classList.add('no-gl'); return W; }
+  gl.useProgram(pr);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ['uRes', 'uTime', 'uDepth', 'uVel', 'uTravel', 'uPtr'].forEach(n => U[n] = gl.getUniformLocation(pr, n));
+
+  /* чёткость: по плотности экрана, но сама подстраивается под скорость устройства (в обе стороны) */
+  const DPR = Math.min(devicePixelRatio || 1, 2);
+  const small = Math.min(innerWidth, innerHeight) < 700;
+  let scale = small ? .7 : .85, sMin = .45, sMax = 1;
+  let fw = 0, fh = 0;
+  function resize(){
+    const w = Math.max(2, Math.round(innerWidth * DPR * scale)), h = Math.max(2, Math.round(innerHeight * DPR * scale));
+    if (w === fw && h === fh) return;
+    fw = w; fh = h; cv.width = w; cv.height = h; gl.viewport(0, 0, w, h);
+  }
+  resize();
+  let rT = 0; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(resize, 120); });
+
+  const ptr = { x: 0, y: 0, tx: 0, ty: 0 };
+  if (matchMedia('(pointer: fine)').matches) addEventListener('pointermove', e => { ptr.tx = e.clientX / innerWidth - .5; ptr.ty = .5 - e.clientY / innerHeight; }, { passive: true });
+
+  let qSum = 0, qN = 0, lastQ = 0, prevT = 0, visible = true;
+  document.addEventListener('visibilitychange', () => { visible = !document.hidden; });
+  W.ok = true;
+  W.resize = resize;
+  W.render = function(nowMs){
+    if (!visible) return;
+    const dt = prevT ? Math.min(.1, (nowMs - prevT) / 1000) : 1 / 60; prevT = nowMs;
+    // авто-качество: держим ~55+ кадров, при запасе возвращаем чёткость
+    if (dt < .25){ qSum += dt; qN++; }
+    if (qN >= 90){
+      const avg = qSum / qN; qSum = 0; qN = 0;
+      if (nowMs - lastQ > 2000 && avg > 1 / 48 && scale > sMin){ scale = Math.max(sMin, scale - .1); lastQ = nowMs; resize(); }
+      else if (nowMs - lastQ > 6000 && avg < 1 / 58 && scale < sMax){ scale = Math.min(sMax, scale + .05); lastQ = nowMs; resize(); }
+    }
+    const k = 1 - Math.exp(-dt * 4); ptr.x += (ptr.tx - ptr.x) * k; ptr.y += (ptr.ty - ptr.y) * k;
+    gl.uniform2f(U.uRes, fw, fh);
+    gl.uniform1f(U.uTime, nowMs / 1000 % 3600);
+    gl.uniform1f(U.uDepth, W.depth);
+    gl.uniform1f(U.uVel, Math.max(-1, Math.min(1, W.vel)));
+    gl.uniform1f(U.uTravel, W.travel);
+    gl.uniform2f(U.uPtr, ptr.x, ptr.y);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+  cv.addEventListener('webglcontextlost', e => { e.preventDefault(); W.ok = false; document.documentElement.classList.add('no-gl'); });
+  return W;
+})();
+
+/* =====================================================================
+   ПРОКРУТКА И ПЕРЕХОДЫ: Lenis (плавный скролл) + GSAP ScrollTrigger.
+   Если библиотеки не загрузились — сайт остаётся полностью рабочим и видимым.
+   ===================================================================== */
+(function(){
+  const root = document.documentElement;
+  const hasGSAP = !!(window.gsap && window.ScrollTrigger);
+  const narrowQ = matchMedia('(max-width: 760px)');
+
+  /* ---------- общие части, которые работают и без GSAP ---------- */
+  const bar = $('#bar'), prog = $('#progress i');
+  let lastY = 0;
+  const rail = $('.rail'), about = $('#aboutBtn');
+  function onScrollUI(y, max){
+    bar.classList.toggle('solid', y > 60);
+    rail.classList.toggle('on', y > innerHeight * .8);
+    if (about) about.classList.toggle('tuck', (y > innerHeight * .5 || narrowQ.matches) && y < max - innerHeight * 1.2);   // не закрывает текст
+    bar.classList.toggle('away', y > lastY + 2 && y > 400 && !root.classList.contains('nav-lock'));
+    if (y < lastY - 2) bar.classList.remove('away');
+    lastY = y;
+    prog.style.transform = `scaleX(${max > 0 ? clamp01(y / max) : 0})`;
+  }
+  // текущий раздел → подсветка меню, точки сбоку и нижнего меню
+  const SECS = ['schedule', 'programs', 'coaches', 'prices', 'signup'];
+  let curSec = '';
+  function markSection(id){
+    if (id === curSec) return; curSec = id;
+    $$('[data-nav]').forEach(a => a.dataset.nav === id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current'));
+    $$('[data-rail]').forEach(a => a.dataset.rail === (id || 'top') ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current'));
+  }
+  function sectionAt(){
+    const mid = innerHeight * .45; let id = '';
+    SECS.forEach(s => { const el = document.getElementById(s); if (el && el.getBoundingClientRect().top < mid) id = s; });
+    return id;
+  }
+
+  /* ---------- глубина воды по прокрутке ---------- */
+  let heroEnd = innerHeight, depthT = 0;
+  function depthFor(y, max){
+    if (y <= heroEnd) return .17 * clamp01(y / Math.max(1, heroEnd));
+    return .17 + .83 * clamp01((y - heroEnd) / Math.max(1, max - heroEnd));
+  }
+
+  /* ===================== ЗАПАСНОЙ РЕЖИМ (без GSAP или «меньше движения») ===================== */
+  if (!hasGSAP || reduce){
+    if (!hasGSAP) console.warn('DTswim: GSAP не загрузился — показываю сайт без скролл-анимаций.');
+    $$('[data-count]').forEach(el => el.textContent = el.dataset.count);
+    const maxY = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    let pend = false;
+    const upd = () => {
+      pend = false; const y = scrollY, m = maxY();
+      onScrollUI(y, m); markSection(sectionAt());
+      WATER.depth = depthFor(y, m); WATER.travel = y / innerHeight * 1.4;
+      if (reduce) WATER.render(performance.now());
+    };
+    addEventListener('scroll', () => { if (!pend){ pend = true; requestAnimationFrame(upd); } }, { passive: true });
+    upd();
+    if (!reduce){ (function loop(t){ WATER.render(t); requestAnimationFrame(loop); })(performance.now()); }
+    else setTimeout(() => WATER.render(performance.now()), 50);
+    $$('[data-to]').forEach(a => a.addEventListener('click', e => {
+      const id = a.getAttribute('href'); const el = id && id.length > 1 ? document.querySelector(id) : null;
+      if (!el) return; e.preventDefault(); el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }));
+    return;
+  }
+
+  /* ===================== ПОЛНЫЙ РЕЖИМ ===================== */
+  gsap.registerPlugin(ScrollTrigger);
+  root.classList.add('js-fx');
+  ScrollTrigger.config({ ignoreMobileResize: true });
+
+  let lenis = null;
+  if (window.Lenis){
+    lenis = new Lenis({ lerp: .085, wheelMultiplier: .95, smoothWheel: true, syncTouch: false });
+    window.DT_LENIS = lenis;
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+  }
+  gsap.ticker.lagSmoothing(0);
+
+  const scrollY_ = () => lenis ? lenis.scroll : scrollY;
+  let prevY = scrollY_(), vel = 0, secT = 0;
+  gsap.ticker.add((time, dtMs) => {
+    const y = scrollY_(), max = ScrollTrigger.maxScroll(window), dt = Math.min(.1, Math.max(.001, dtMs / 1000));
+    const v = lenis ? lenis.velocity : (y - prevY) / dt / 60; prevY = y;
+    vel += (v / 40 - vel) * (1 - Math.exp(-dt * 6));
+    depthT = depthFor(y, max);
+    WATER.depth += (depthT - WATER.depth) * (1 - Math.exp(-dt * 5));
+    WATER.vel = vel; WATER.travel = y / innerHeight * 1.4;
+    WATER.render(performance.now());
+    onScrollUI(y, max);
+    marquee(dt);
+    secT += dt; if (secT > .2){ secT = 0; markSection(sectionAt()); }
+  });
+
+  /* ---------- переходы по ссылкам меню: плавный «заплыв» к разделу ---------- */
+  $$('[data-to]').forEach(a => a.addEventListener('click', e => {
+    const id = a.getAttribute('href'); const el = id === '#top' ? 0 : (id && id.length > 1 ? document.querySelector(id) : null);
+    if (el === null) return; e.preventDefault();
+    const target = el === 0 ? 0 : el.getBoundingClientRect().top + scrollY_() - (narrowQ.matches ? 40 : 70);
+    const dist = Math.abs(target - scrollY_());
+    root.classList.add('nav-lock'); bar.classList.remove('away');
+    const done = () => root.classList.remove('nav-lock');
+    if (lenis) lenis.scrollTo(target, { duration: Math.min(2.6, .9 + dist / 5200), easing: t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2, onComplete: done });
+    else { scrollTo({ top: target, behavior: 'smooth' }); setTimeout(done, 1500); }
+    history.replaceState(null, '', id === '#top' ? location.pathname : id);
+  }));
+
+  /* ---------- герой: вход букв и «нырок» по прокрутке ---------- */
+  const megaChars = $$('.mega .ch');
+  gsap.set('.mega', { perspective: 800 });
+  gsap.from(megaChars, { yPercent: 70, rotationX: -95, opacity: 0, transformOrigin: '50% 100%', stagger: .055, duration: 1.3, ease: 'expo.out', delay: .15 });
+  gsap.from('[data-hero="k"], [data-hero="s"], [data-hero="a"], [data-hero="n"]', { y: 30, autoAlpha: 0, stagger: .1, duration: 1, ease: 'power3.out', delay: .45, clearProps: 'visibility' });
+  const hero = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: () => '+=' + Math.round(innerHeight * (narrowQ.matches ? .5 : .65)), pin: true, scrub: .8,
+    onRefresh: self => { heroEnd = self.end; } } });
+  // вход анимирует сами элементы, а прокрутка — их обёртку и другие свойства: так анимации не спорят друг с другом
+  hero.to(megaChars, { y: i => -innerHeight * (.35 + (i % 3) * .12), rotation: i => (i % 2 ? 1 : -1) * (6 + i * 2), ease: 'power2.in', stagger: .03, duration: .7 }, 0)
+      .to('.mega', { opacity: 0, duration: .45, ease: 'power1.in' }, .3)
+      .to('.hero-in', { y: () => -innerHeight * .18, duration: .9, ease: 'power1.in' }, 0)
+      .to('.hero-in', { opacity: 0, duration: .35 }, .5)
+      .to('.next', { xPercent: 130, rotation: 6, duration: .5, ease: 'power2.in' }, 0)
+      .to('.cue', { opacity: 0, duration: .15 }, 0);
+
+  /* ---------- манифест: слова загораются ---------- */
+  gsap.to('.mf .w', { opacity: 1, stagger: .12, ease: 'none',
+    scrollTrigger: { trigger: '.mf', start: 'top 82%', end: 'bottom 42%', scrub: .6 } });   // без закрепления — слова загораются, пока текст проезжает
+
+  /* ---------- цифры ---------- */
+  gsap.set('.stat', { y: 70, opacity: 0 });
+  ScrollTrigger.create({ trigger: '.stats', start: 'top 82%', once: true, onEnter: () => {
+    gsap.to('.stat', { y: 0, opacity: 1, stagger: .12, duration: 1.1, ease: 'expo.out' });
+    $$('[data-count]').forEach((el, i) => {
+      const o = { v: 0 }, to = +el.dataset.count;
+      gsap.to(o, { v: to, duration: 1.4, delay: .15 + i * .12, ease: 'power3.out', onUpdate: () => { el.textContent = Math.round(o.v); } });
+    });
+  } });
+
+  /* ---------- бегущие строки: скорость и наклон от скорости прокрутки ---------- */
+  const rows = $$('.marq-row').map(r => ({ el: r, dir: +r.dataset.dir, x: 0, w: 0 }));
+  const measure = () => rows.forEach(r => { r.w = r.el.firstElementChild.offsetWidth; });
+  measure(); addEventListener('resize', measure);
+  function marquee(dt){
+    const boost = Math.min(6, Math.abs(vel) * 6);
+    rows.forEach(r => {
+      if (!r.w) return;
+      r.x -= (60 + boost * 160) * dt * r.dir * (vel < -.02 ? -1 : 1);
+      if (r.x <= -r.w) r.x += r.w; if (r.x > 0) r.x -= r.w;
+      r.el.style.transform = `translate3d(${r.x.toFixed(1)}px,0,0) skewX(${(-vel * 12).toFixed(2)}deg)`;
+    });
+  }
+
+  /* ---------- заголовки разделов: слова выплывают из «маски» ---------- */
+  $$('[data-lines]').forEach(t => {
+    const parts = $$('.ln > span', t);
+    gsap.set(parts, { yPercent: 115, rotation: 5 });
+    ScrollTrigger.create({ trigger: t, start: 'top 88%', once: true, onEnter: () => gsap.to(parts, { yPercent: 0, rotation: 0, stagger: .06, duration: 1.1, ease: 'expo.out' }) });
+  });
+  $$('.sec-head .lead, .sec-head .chips, .km-stick, .sec-foot').forEach(el => {
+    gsap.set(el, { y: 40, opacity: 0 });
+    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => gsap.to(el, { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: .1 }) });
+  });
+
+  /* ---------- карточки: поднимаются из глубины пачками ---------- */
+  function rise(sel, opts = {}){
+    const els = $$(sel); if (!els.length) return;
+    gsap.set(els, { y: opts.y || 90, opacity: 0, rotationX: opts.rx == null ? -18 : opts.rx, transformPerspective: 900, transformOrigin: '50% 0%' });
+    ScrollTrigger.batch(els, { start: opts.start || 'top 90%', once: true,
+      onEnter: b => gsap.to(b, { y: 0, opacity: 1, rotationX: 0, stagger: .1, duration: 1.15, ease: 'expo.out', overwrite: true }) });
+  }
+  rise('.legend > div', { y: 50, rx: 0 }); rise('#paceCalc', { y: 60, rx: 0 }); rise('.tech', { rx: -25 });
+  rise('#diary', { y: 60, rx: 0 }); rise('#priceCalc', { y: 60, rx: 0 }); rise('.tip', { y: 50, rx: 0 });
+  rise('#builder', { y: 60, rx: 0 }); rise('details.q', { y: 30, rx: 0 });
+  rise('#d-core .ex');
+  // вкладка «Сила» скрыта, пока её не открыли — анимируем при первом открытии
+  let strDone = false;
+  document.addEventListener('dt:layout', e => {
+    if (e.detail && e.detail.panel === '#d-str' && !strDone){ strDone = true; gsap.fromTo('#d-str .ex', { y: 50, opacity: 0 }, { y: 0, opacity: 1, stagger: .07, duration: .9, ease: 'expo.out' }); drawSchemes('#d-str'); }
+    ScrollTrigger.refresh();
+  });
+
+  /* схемы упражнений «рисуются» линиями при появлении */
+  function drawSchemes(scope){
+    $$(scope + ' .scheme').forEach(sc => {
+      const ls = $$('polyline.b, polyline.q', sc);
+      ls.forEach(l => { let L = 120; try { L = l.getTotalLength() + 1; } catch (e) {} l.style.strokeDasharray = L; l.style.strokeDashoffset = L; });
+      const draw = () => gsap.to(ls, { strokeDashoffset: 0, duration: 1.2, stagger: .05, ease: 'power2.inOut', onComplete: () => ls.forEach(l => { l.style.strokeDasharray = ''; l.style.strokeDashoffset = ''; }) });
+      if (scope === '#d-str') draw(); else ScrollTrigger.create({ trigger: sc, start: 'top 85%', once: true, onEnter: draw });
+    });
+  }
+  drawSchemes('#d-core');
+
+  /* ---------- заголовки разделов: номер, слово из «перевернувшихся» букв и дорожка (бывшие «ворота», но без лишней прокрутки) ---------- */
+  $$('.sec-head').forEach(h => {
+    const t = $('.big-t', h); if (!t) return;
+    const chars = $$('.ch', t), num = $('.sec-num', h), rope = $('.rope', h);
+    gsap.set(chars, { yPercent: 105, rotationX: -85, opacity: 0, transformOrigin: '50% 100%' });
+    gsap.set(num, { y: 20, opacity: 0 }); gsap.set(rope, { scaleX: 0 });
+    ScrollTrigger.create({ trigger: h, start: 'top 86%', once: true, onEnter: () => {
+      gsap.to(num, { y: 0, opacity: 1, duration: .7, ease: 'power3.out' });
+      gsap.to(chars, { yPercent: 0, rotationX: 0, opacity: 1, stagger: .028, duration: 1, ease: 'expo.out', delay: .05 });
+      gsap.to(rope, { scaleX: 1, duration: 1.1, ease: 'power3.inOut', delay: .2 });
+    } });
+    // уходя вверх, заголовок «проплывает» мимо: чуть растёт и гаснет
+    gsap.to(t, { scale: 1.12, opacity: .25, transformOrigin: '0% 100%', ease: 'none', scrollTrigger: { trigger: t, start: 'top 22%', end: 'bottom -10%', scrub: true } });
+  });
+
+  /* ---------- расписание: дни едут вбок, пока листаешь вниз ---------- */
+  // на компьютере — закреплённая лента; на телефоне — обычное листание пальцем вбок (не удлиняет страницу)
+  const track = $('#days'), wrap = $('#hwrap');
+  const hDist = () => Math.max(0, track.scrollWidth - wrap.clientWidth + parseFloat(getComputedStyle(wrap).paddingLeft) * 2);
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 761px)', () => {
+    const hTween = gsap.to(track, { x: () => -hDist(), ease: 'none',
+      scrollTrigger: { trigger: wrap, start: 'center 54%', end: () => '+=' + hDist(), pin: true, scrub: .7, invalidateOnRefresh: true, anticipatePin: 1 } });
+    $$('.day').forEach(d => {
+      gsap.fromTo(d, { rotationY: -28, opacity: .25, transformPerspective: 1100, transformOrigin: '0% 50%' }, { rotationY: 0, opacity: 1, ease: 'none',
+        scrollTrigger: { containerAnimation: hTween, trigger: d, start: 'left 100%', end: 'left 62%', scrub: true } });
+    });
+  });
+  mm.add('(max-width: 760px)', () => {
+    gsap.from('.day', { x: 90, opacity: 0, stagger: .08, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: wrap, start: 'top 88%', once: true } });
+  });
+
+  /* ---------- программы: 4 км набираются вместе с полосой ---------- */
+  const segs = $$('.lanebar .seg'), kmNum = $('#kmNum');
+  gsap.set(segs, { scaleX: 0 });
+  const kmObj = { v: 0 };
+  const kmTl = gsap.timeline({ scrollTrigger: { trigger: '.water-block', start: 'top 72%', end: 'top 12%', scrub: .6 } });
+  kmTl.to(segs, { scaleX: 1, stagger: .2, duration: .25, ease: 'power1.inOut' }, 0)
+      .to(kmObj, { v: 4, duration: 1.05, ease: 'none', onUpdate: () => { kmNum.textContent = kmObj.v >= 3.995 ? '4' : kmObj.v.toFixed(1).replace('.', ','); } }, 0);
+
+  /* ---------- тренеры: карточки ложатся стопкой ---------- */
+  const coaches = $$('.coach');
+  coaches.forEach((c, i) => {
+    gsap.set(c, { '--dim': 0 });
+    if (i === coaches.length - 1) return;
+    gsap.to(c, { scale: .92 - (coaches.length - 2 - i) * .025, '--dim': .55, ease: 'none',
+      scrollTrigger: { trigger: coaches[i + 1], start: 'top 95%', end: () => 'top ' + (96 + (i + 1) * 26) + 'px', scrub: true } });
+  });
+  gsap.from(coaches.map(c => $('.mono', c)), { scale: .4, rotation: -90, opacity: 0, duration: 1.2, ease: 'back.out(1.6)', stagger: 0,
+    scrollTrigger: { trigger: '#coachStack', start: 'top 80%', once: true } });
+
+  /* ---------- цены: пьедестал вырастает, цифры набегают ---------- */
+  gsap.set('.price', { y: 160, opacity: 0 });
+  ScrollTrigger.create({ trigger: '.podium', start: 'top 85%', once: true, onEnter: () => {
+    gsap.to('.price', { y: 0, opacity: 1, duration: 1.3, ease: 'expo.out', stagger: { each: .14, from: 'center' } });
+    $$('[data-price]').forEach((el, i) => {
+      const to = +el.textContent || 0, o = { v: 0 };
+      gsap.to(o, { v: to, duration: 1.5, delay: .3 + i * .1, ease: 'power3.out', onUpdate: () => { el.textContent = Math.round(o.v); } });
+    });
+  } });
+
+  /* ---------- первое занятие: линия-дорожка прорисовывается, шаги загораются ---------- */
+  const flow = $('#flow');
+  gsap.fromTo(flow, { '--fl': 0 }, { '--fl': 1, ease: 'none', scrollTrigger: { trigger: flow, start: 'top 70%', end: 'bottom 55%', scrub: .5 } });
+  $$('#flow li').forEach(li => {
+    gsap.from(li, { x: 60, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: li, start: 'top 85%', once: true } });
+    ScrollTrigger.create({ trigger: li, start: 'top 62%', onEnter: () => li.classList.add('on'), onLeaveBack: () => li.classList.remove('on') });
+  });
+
+  /* ---------- «На старт!»: буквы слетаются ---------- */
+  const gChars = $$('.giant .ch');
+  gsap.fromTo(gChars, { x: () => (Math.random() - .5) * innerWidth * .9, y: () => (Math.random() - .5) * innerHeight * .7, rotation: () => (Math.random() - .5) * 120, opacity: 0, scale: .4 },
+    { x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, ease: 'power3.out', stagger: .02,
+      scrollTrigger: { trigger: '.start', start: 'top 95%', end: 'top 25%', scrub: .8 } });
+  gsap.from('.start .lead, .start .tg, .start .link-text', { y: 40, opacity: 0, stagger: .1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.start .tg', start: 'top 92%', once: true } });
+
+  /* ---------- магнитные кнопки и наклон карточек (только мышь) ---------- */
+  if (fine){
+    $$('.mag').forEach(b => {
+      const xTo = gsap.quickTo(b, 'x', { duration: .5, ease: 'power3.out' }), yTo = gsap.quickTo(b, 'y', { duration: .5, ease: 'power3.out' });
+      b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); xTo((e.clientX - r.left - r.width / 2) * .25); yTo((e.clientY - r.top - r.height / 2) * .35); });
+      b.addEventListener('pointerleave', () => { gsap.to(b, { x: 0, y: 0, duration: .9, ease: 'elastic.out(1,.4)' }); });
+    });
+    $$('.price, .tech').forEach(c => {
+      c.addEventListener('pointermove', e => { if (gsap.isTweening(c)) return; const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+        gsap.to(c, { rotationY: px * 9, rotationX: -py * 7, transformPerspective: 900, duration: .5, ease: 'power2.out' }); });
+      c.addEventListener('pointerleave', () => gsap.to(c, { rotationY: 0, rotationX: 0, duration: .8, ease: 'power3.out' }));
+    });
+  }
+
+  /* ---------- текущий раздел ---------- */
+  SECS.forEach(id => ScrollTrigger.create({ trigger: '#' + id, start: 'top 45%', end: 'bottom 45%', onToggle: () => markSection(sectionAt()) }));
+  ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onToggle: () => markSection(sectionAt()) });
+
+  /* пересчитать позиции, когда загрузились шрифты, и открыть раздел из адреса */
+  ScrollTrigger.sort();
+  const ready = () => {
+    ScrollTrigger.sort(); ScrollTrigger.refresh(); measure();
+    const h = location.hash && document.querySelector(location.hash);
+    if (h && SECS.includes(location.hash.slice(1))){ const y = h.getBoundingClientRect().top + scrollY_() - 70; lenis ? lenis.scrollTo(y, { immediate: true }) : scrollTo(0, y); }
+    markSection(sectionAt());
+  };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(ready); else addEventListener('load', ready);
+  addEventListener('load', () => ScrollTrigger.refresh());
+})();
+
+</script>
+</body>
+</html>
