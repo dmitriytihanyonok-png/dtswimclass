@@ -46,6 +46,9 @@ input,select,textarea{font:inherit;color:inherit}
 .shade{position:fixed;inset:0;z-index:1;pointer-events:none;background:
   radial-gradient(90% 70% at 30% 45%,rgba(2,21,38,.0),rgba(2,21,38,.35)),
   linear-gradient(180deg,rgba(2,21,38,.45) 0%,rgba(2,21,38,0) 22%,rgba(2,21,38,0) 70%,rgba(2,21,38,.5) 100%)}
+/* 3D-сцена (Three.js) — между водой и текстом, клики не перехватывает */
+#scene3d{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block;pointer-events:none;opacity:0;transition:opacity 1.4s var(--ease)}
+.has-3d #scene3d{opacity:1}
 main,.foot{position:relative;z-index:2}
 
 /* ---------- прогресс и шапка ---------- */
@@ -440,6 +443,7 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
 <body>
 <canvas id="water" aria-hidden="true"></canvas>
 <div class="shade" aria-hidden="true"></div>
+<canvas id="scene3d" aria-hidden="true"></canvas>
 <div id="progress" aria-hidden="true"><i></i></div>
 
 <header class="bar" id="bar">
@@ -1183,12 +1187,12 @@ applyCap(capSaved || '#FFC531');
     <h2 id="aboutTitle">О проекте</h2>
     <p>Сайт школы плавания DTswim: расписание со свободными местами, программы на воде и на суше, тренеры, цены и запись в Telegram.</p>
     <div class="a-grid">
-      <div><b>Погружение по прокрутке</b><span>Фон — живая вода на WebGL: сначала вид сверху на дорожки, потом нырок сквозь поверхность и спуск до дна.</span></div>
+      <div><b>3D и погружение</b><span>Живая вода на WebGL и 3D-сцена на Three.js: пловец плывёт кролем между дорожками, потом нырок сквозь поверхность — и рядом с разделами всплывает инвентарь.</span></div>
       <div><b>Скролл-переходы</b><span>Плавная прокрутка, закреплённые сцены, горизонтальное расписание, стопка карточек тренеров, буквы, которые собираются и разлетаются.</span></div>
       <div><b>Полезные инструменты</b><span>Калькуляторы стоимости и темпа, календарь расписания, заявка в Telegram, дневник с уровнями.</span></div>
       <div><b>Для телефона</b><span>Адаптивная вёрстка, нижнее меню, качество воды подстраивается под устройство.</span></div>
     </div>
-    <ul class="a-tech"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>WebGL / GLSL</li><li>GSAP ScrollTrigger</li><li>Lenis</li><li>Один файл</li></ul>
+    <ul class="a-tech"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>WebGL / GLSL</li><li>Three.js</li><li>GSAP ScrollTrigger</li><li>Lenis</li><li>Один файл</li></ul>
     <p style="margin-bottom:${contact ? 16 : 0}px">Автор: ${PORTFOLIO.author}.</p>${contact}`;
   let lastFocus = null;
   const open = () => { lastFocus = document.activeElement; dlg.hidden = false; $('.a-close', card).focus(); if (window.DT_LENIS) DT_LENIS.stop(); };
@@ -1447,6 +1451,7 @@ void main(){
   cv.addEventListener('webglcontextlost', e => { e.preventDefault(); W.ok = false; document.documentElement.classList.add('no-gl'); });
   return W;
 })();
+window.DT_WATER = WATER;   // 3D-сцена берёт отсюда глубину и скорость прокрутки
 
 /* =====================================================================
    ПРОКРУТКА И ПЕРЕХОДЫ: Lenis (плавный скролл) + GSAP ScrollTrigger.
@@ -1745,6 +1750,432 @@ void main(){
   addEventListener('load', () => ScrollTrigger.refresh());
 })();
 
+</script>
+
+<!-- 3D-сцена: Three.js как модуль. Не загрузится — сайт работает как раньше, с водой на шейдере. -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+/* =====================================================================
+   3D-СЦЕНА (Three.js). На первом экране — пловец кролем между разделителями
+   дорожек, вид сверху; при нырке он уходит вверх, и мы видим его снизу.
+   Дальше рядом с разделами всплывает инвентарь: круг, доска, колобашка,
+   очки, медаль, секундомер и шапочка (её цвет = «цвет шапочки» в подвале).
+   ===================================================================== */
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+(function(){
+  const cv = document.getElementById('scene3d');
+  if (!cv) return;
+  const WATER = window.DT_WATER || { depth: 0, vel: 0 };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(pointer: fine)').matches;
+  const small = Math.min(innerWidth, innerHeight) < 700;
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, powerPreference: 'high-performance' }); }
+  catch (e) { console.warn('DTswim 3D: WebGL недоступен', e); return; }
+  renderer.setClearColor(0x000000, 0);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+
+  const scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), .04).texture;
+  scene.fog = new THREE.Fog(0x04304f, 10, 60);
+  const cam = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100);
+  cam.position.set(0, 0, 12);
+
+  const hemi = new THREE.HemisphereLight(0xcff9ff, 0x03213a, .8); scene.add(hemi);
+  const key = new THREE.DirectionalLight(0xfff3dd, 2.4); key.position.set(3, 6, 8); scene.add(key);
+  const rim = new THREE.DirectionalLight(0x4fd1d9, 1.8); rim.position.set(-6, -2, -4); scene.add(rim);
+
+  /* ---------- помощники ---------- */
+  const PI = Math.PI, TAU = PI * 2;
+  const sstep = THREE.MathUtils.smoothstep, lerp = THREE.MathUtils.lerp;
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  let accent = css('--yellow') || '#FFC531';
+  const M = (color, o = {}) => new THREE.MeshPhysicalMaterial({ color, roughness: .28, clearcoat: 1, clearcoatRoughness: .12, ...o });
+  const capsule = (r, l, mat) => new THREE.Mesh(new THREE.CapsuleGeometry(r, l, 8, 20), mat);
+  const mesh = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); return m; };
+  // текстура из <canvas>; перерисовывается, когда загрузились шрифты или сменился цвет
+  function canvasTex(w, h, draw, srgb = true){
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4; t.userData.redraw = () => { const g = c.getContext('2d'); g.clearRect(0, 0, w, h); draw(g, w, h); t.needsUpdate = true; };
+    t.userData.redraw(); return t;
+  }
+  const FONT = '"Unbounded","Arial Black",Impact,sans-serif';
+  const logo = (g, x, y, size, dt, sw) => {
+    g.font = `900 ${size}px ${FONT}`; g.textBaseline = 'middle';
+    const a = g.measureText('DT').width, b = g.measureText('swim').width, x0 = x - (a + b) / 2;
+    g.fillStyle = dt; g.fillText('DT', x0, y); g.fillStyle = sw; g.fillText('swim', x0 + a, y);
+  };
+
+  /* ---------- материалы ---------- */
+  const skin = M(0xe6f9fb, { roughness: .3, iridescence: .6, iridescenceIOR: 1.4, sheen: .5, sheenColor: new THREE.Color(0x7fe9f0) });
+  const suit = M(0x0b2c4d, { roughness: .4 });
+  const capMat = M(accent, { roughness: .18 });
+  const mirror = M(0x7fe9f0, { metalness: 1, roughness: .06, iridescence: 1, iridescenceIOR: 1.8 });
+  const chrome = M(0xdfe8eb, { metalness: 1, roughness: .16 });
+  const gold = M(0xffc94a, { metalness: 1, roughness: .2 });
+  const red = M(0xF0483E, { roughness: .32 }), aqua = M(0x4FD1D9, { roughness: .3 }), white = M(0xf4fbfc, { roughness: .3 }), navy = M(0x0b2c4d, { roughness: .35 });
+
+  /* =====================================================================
+     ПЛОВЕЦ: стилизованный манекен из капсул, кроль с перекатом корпуса,
+     вдохом на каждый второй цикл и шестиударной работой ног
+     ===================================================================== */
+  function makeSwimmer(){
+    const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
+    const add = (m, x, y, z, sx = 1, sy = 1, sz = 1, parent = body) => { m.position.set(x, y, z); m.scale.set(sx, sy, sz); parent.add(m); return m; };
+    const along = m => { m.rotation.x = PI / 2; return m; };          // капсула вдоль тела (ось Z — к голове)
+    add(along(capsule(.15, .26, skin)), 0, 0, .17, 1.32, 1, .68);    // грудь
+    add(along(capsule(.125, .2, skin)), 0, 0, -.08, 1.08, 1, .7);    // талия
+    [1, -1].forEach(s => add(new THREE.Mesh(new THREE.SphereGeometry(.075, 20, 14), skin), s * .22, .015, .3));   // плечи
+    add(along(capsule(.15, .16, suit)), 0, 0, -.34, 1.18, 1, .78);   // плавки
+    add(along(capsule(.06, .08, skin)), 0, .01, .42);                 // шея
+    const head = new THREE.Group(); head.position.set(0, .02, .56); body.add(head);
+    add(new THREE.Mesh(new THREE.SphereGeometry(.115, 32, 20), skin), 0, 0, 0, .92, 1, 1.12, head);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(.124, 32, 16, 0, TAU, 0, PI * .56), capMat);
+    cap.rotation.x = PI / 2 - .55; add(cap, 0, .012, .004, .94, 1.12, 1, head);
+    [1, -1].forEach(s => add(new THREE.Mesh(new THREE.SphereGeometry(.03, 16, 10), mirror), s * .045, -.085, .055, 1.25, .55, 1, head));   // очки
+    const arms = [1, -1].map(side => {
+      const ab = new THREE.Group(); ab.position.set(side * .25, .02, .3); body.add(ab);   // отведение локтя в сторону
+      const sh = new THREE.Group(); ab.add(sh);                                            // гребок вокруг плеча
+      add(capsule(.055, .22, skin), 0, -.15, 0, 1, 1, 1, sh);
+      const el = new THREE.Group(); el.position.y = -.31; sh.add(el);
+      add(capsule(.047, .2, skin), 0, -.13, 0, 1, 1, 1, el);
+      const hand = add(new THREE.Mesh(new THREE.SphereGeometry(.055, 16, 12), skin), 0, -.3, 0, 1, 1.45, .45, el);
+      return { side, ab, sh, el, hand, ph: side > 0 ? 0 : .5, prevY: 0 };
+    });
+    const legs = [1, -1].map(side => {
+      const hp = new THREE.Group(); hp.position.set(side * .09, 0, -.44); body.add(hp);
+      add(capsule(.075, .3, skin), 0, -.21, 0, 1, 1, .9, hp);
+      const kn = new THREE.Group(); kn.position.y = -.43; hp.add(kn);
+      add(capsule(.055, .3, skin), 0, -.19, 0, 1, 1, 1, kn);
+      const foot = add(new THREE.Mesh(new THREE.SphereGeometry(.05, 16, 12), skin), 0, -.42, .02, .9, 1.9, .6, kn);
+      return { side, hp, kn, foot };
+    });
+    const ease = x => (1 - Math.cos(PI * x)) / 2;
+    root.userData = { arms, legs, pose(t){
+      const T = t / 1.4, pr = T % 1, cyc = Math.floor(T);                // полный цикл обеих рук — 1,4 с
+      arms.forEach(a => {
+        const p = (T + a.ph) % 1; let ang, bend, abd = 0;
+        if (p < .56){ const x = p / .56; ang = PI * ease(x); bend = .7 * Math.sin(PI * Math.min(1, x * 1.3)); }   // гребок под водой, высокий локоть
+        else { const x = (p - .56) / .44; ang = PI + PI * ease(x); bend = 1.5 * Math.sin(PI * x); abd = .55 * Math.sin(PI * x); }  // пронос над водой
+        a.sh.rotation.x = -PI / 2 + ang; a.el.rotation.x = bend; a.ab.rotation.z = -a.side * abd;
+      });
+      const roll = -.55 * Math.sin(TAU * (pr - .02));
+      body.rotation.z = roll;
+      const breath = cyc % 2 === 0 ? Math.sin(PI * Math.min(1, Math.max(0, (pr - .5) / .4))) : 0;
+      head.rotation.z = -roll * .7 + breath * .9;
+      body.position.y = .02 * Math.sin(TAU * 2 * pr);
+      legs.forEach(l => {
+        const k = TAU * 3 * pr + (l.side > 0 ? 0 : PI);
+        l.hp.rotation.x = PI / 2 + .24 * Math.sin(k);
+        l.kn.rotation.x = .12 + .4 * Math.max(0, Math.sin(k + .9));
+      });
+    } };
+    return root;
+  }
+
+  /* ---------- первый экран: бассейн ---------- */
+  const SPEED = 1.7;                                          // м/с — с этой скоростью «едут» поплавки
+  const hero = new THREE.Group(); scene.add(hero);            // поворот в плоскости экрана
+  const pool = new THREE.Group(); hero.add(pool);             // наклон: смотрим на воду сверху под углом
+  const swimmer = makeSwimmer(); swimmer.position.y = -.06; pool.add(swimmer);
+
+  // разделители дорожек: поплавки-катушки красные, белые и бирюзовые — как «дорожка» в заголовках
+  const prof = [[0,-.06],[.03,-.06],[.05,-.052],[.06,-.035],[.047,-.018],[.06,0],[.047,.018],[.06,.035],[.05,.052],[.03,.06],[0,.06]]
+    .map(p => new THREE.Vector2(p[0] * 1.3, p[1] * 1.3));
+  const floatGeo = new THREE.LatheGeometry(prof, 28); floatGeo.rotateX(PI / 2);
+  const SP = .16, NF = 108, LEN = SP * NF;
+  const ROPE_C = [0xF0483E, 0xffffff, 0x4FD1D9].map(c => new THREE.Color(c));
+  const ropes = [-1.25, 1.25].map(x => {
+    const m = new THREE.InstancedMesh(floatGeo, M(0xffffff, { roughness: .35 }), NF);
+    for (let i = 0; i < NF; i++) m.setColorAt(i, ROPE_C[Math.floor(i / 6) % 3]);
+    m.userData.x = x; m.frustumCulled = false; pool.add(m); return m;
+  });
+  const dummy = new THREE.Object3D();
+  function updateRopes(t){
+    const off = (t * SPEED) % LEN;
+    ropes.forEach((m, r) => {
+      for (let i = 0; i < NF; i++){
+        const z = ((i * SP - off) % LEN + LEN) % LEN - LEN / 2;
+        dummy.position.set(m.userData.x, .012 * Math.sin(z * 2.1 + t * 2.4 + r * 2), z);
+        dummy.rotation.set(0, 0, i * .7 + t * .8);
+        dummy.scale.setScalar(sstep(4.6 - Math.abs(z), 0, 1.6));   // дорожка видна только рядом с пловцом
+        dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix);
+      }
+      m.instanceMatrix.needsUpdate = true;
+    });
+  }
+
+  // поверхность воды: полупрозрачная, с мягкими краями — подводная часть пловца уходит в голубое
+  const fadeTex = canvasTex(256, 256, (g, w, h) => {
+    const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+    gr.addColorStop(0, '#fff'); gr.addColorStop(.6, '#999'); gr.addColorStop(1, '#000');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  }, false);
+  const surfGeo = new THREE.PlaneGeometry(4.6, 9); surfGeo.rotateX(-PI / 2);
+  const surf = new THREE.Mesh(surfGeo, new THREE.MeshPhysicalMaterial({ color: 0x1aa6c4, transparent: true, opacity: .38, alphaMap: fadeTex, roughness: .12, depthWrite: false }));
+  surf.renderOrder = 2; pool.add(surf);
+
+  // пена и брызги от входа кисти в воду и от ног
+  const FN = 160;
+  const foam = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .25, transparent: true, opacity: .85 }), FN);
+  foam.frustumCulled = false; foam.renderOrder = 3; pool.add(foam);
+  const fp = Array.from({ length: FN }, () => ({ p: new THREE.Vector3(), v: new THREE.Vector3(), life: 0, max: 1, s: 0 }));
+  let fi = 0;
+  function emit(pos, n, spread, size){
+    for (let k = 0; k < n; k++){
+      const q = fp[fi = (fi + 1) % FN];
+      q.p.set(pos.x + (Math.random() - .5) * spread, Math.max(0, pos.y), pos.z + (Math.random() - .5) * spread);
+      q.v.set((Math.random() - .5) * .5, .3 + Math.random() * .5, -SPEED * (.5 + Math.random() * .3));
+      q.life = q.max = .45 + Math.random() * .6; q.s = size * (.6 + Math.random() * .8);
+    }
+  }
+  const tmp = new THREE.Vector3();
+  function updateFoam(dt){
+    swimmer.userData.arms.forEach(a => {
+      a.hand.getWorldPosition(tmp); pool.worldToLocal(tmp);
+      if (tmp.y < .05 && a.prevY >= .05 && tmp.z > swimmer.position.z) emit(tmp, 8, .14, .032);   // кисть входит в воду
+      if (tmp.y > -.02 && a.prevY <= -.02) emit(tmp, 4, .1, .025);                                 // кисть выходит
+      a.prevY = tmp.y;
+    });
+    swimmer.userData.legs.forEach(l => {
+      l.foot.getWorldPosition(tmp); pool.worldToLocal(tmp);
+      if (tmp.y > -.12 && Math.random() < .45) emit(tmp, 1, .12, .024);
+    });
+    fp.forEach((q, i) => {
+      if (q.life > 0){
+        q.life -= dt; q.v.y -= 1.6 * dt; q.p.addScaledVector(q.v, dt);
+        if (q.p.y < 0){ q.p.y = 0; q.v.y = 0; }
+      }
+      dummy.position.copy(q.p); dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(q.life > 0 ? q.s * Math.sqrt(Math.sin(PI * (1 - q.life / q.max))) : 0);
+      dummy.updateMatrix(); foam.setMatrixAt(i, dummy.matrix);
+    });
+    foam.instanceMatrix.needsUpdate = true;
+  }
+
+  /* =====================================================================
+     ИНВЕНТАРЬ, который всплывает рядом с разделами
+     ===================================================================== */
+  function ringBuoy(){
+    const g = new THREE.Group(), geo = new THREE.TorusGeometry(.9, .3, 40, 120);
+    const pos = geo.attributes.position, col = [], R = new THREE.Color(0xF0483E), Wt = new THREE.Color(0xf4fbfc);
+    for (let i = 0; i < pos.count; i++){ const c = Math.floor((Math.atan2(pos.getY(i), pos.getX(i)) + PI) / (PI / 4)) % 2 ? R : Wt; col.push(c.r, c.g, c.b); }
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.add(new THREE.Mesh(geo, M(0xffffff, { vertexColors: true, roughness: .35 })));
+    const ropeM = M(0xe9dcc0, { roughness: .85, clearcoat: 0 });
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(1.24, .024, 8, 160), ropeM));
+    for (let k = 0; k < 4; k++){
+      const a = k * PI / 2 + PI / 8, clip = mesh(new THREE.TorusGeometry(.33, .035, 10, 32), ropeM, Math.cos(a) * .9, Math.sin(a) * .9, 0);
+      clip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(-Math.sin(a), Math.cos(a), 0)); g.add(clip);
+    }
+    return g;
+  }
+  function kickboard(){
+    const g = new THREE.Group(), s = new THREE.Shape();
+    s.moveTo(-.45, -.75); s.lineTo(.45, -.75); s.quadraticCurveTo(.55, -.75, .55, -.65); s.lineTo(.55, .3);
+    s.quadraticCurveTo(.55, .8, 0, .82); s.quadraticCurveTo(-.55, .8, -.55, .3); s.lineTo(-.55, -.65); s.quadraticCurveTo(-.55, -.75, -.45, -.75);
+    const geo = new THREE.ExtrudeGeometry(s, { depth: .12, bevelEnabled: true, bevelThickness: .05, bevelSize: .05, bevelSegments: 5, curveSegments: 40 });
+    geo.center(); g.add(new THREE.Mesh(geo, M(0x1e9ad6, { roughness: .3 })));
+    const tex = canvasTex(512, 160, (c, w, h) => logo(c, w / 2, h / 2, 104, '#ffffff', '#FFE08A'));
+    document.fonts && document.fonts.ready.then(tex.userData.redraw);
+    const decal = mesh(new THREE.PlaneGeometry(.92, .29), new THREE.MeshPhysicalMaterial({ map: tex, transparent: true, roughness: .3, clearcoat: 1, polygonOffset: true, polygonOffsetFactor: -2 }), 0, .12, .1115);
+    g.add(decal); return g;
+  }
+  function pullBuoy(){
+    const g = new THREE.Group();
+    g.add(mesh(new THREE.CapsuleGeometry(.24, .42, 10, 28), red, -.27, 0, 0));
+    g.add(mesh(new THREE.CapsuleGeometry(.24, .42, 10, 28), aqua, .27, 0, 0));
+    const strap = mesh(new THREE.CylinderGeometry(.1, .1, .36, 24), white); strap.rotation.z = PI / 2; g.add(strap);
+    return g;
+  }
+  function goggles(){
+    const g = new THREE.Group(), frame = M(0x0b2c4d, { roughness: .25 });
+    [-1, 1].forEach(s => {
+      const f = mesh(new THREE.TorusGeometry(.28, .06, 16, 48), frame, s * .38, 0, 0); f.scale.set(1.25, 1, 1); g.add(f);
+      const l = mesh(new THREE.SphereGeometry(.28, 32, 16, 0, TAU, 0, PI * .32), mirror, s * .38, 0, .02); l.rotation.x = PI / 2; l.scale.set(1.25, 1, .9); g.add(l);
+    });
+    const bridge = mesh(new THREE.TorusGeometry(.1, .035, 8, 24, PI), frame, 0, .02, 0); g.add(bridge);
+    const strapGeo = new THREE.TorusGeometry(.82, .04, 8, 80, PI * 1.12); strapGeo.rotateZ(-PI * .06); strapGeo.rotateX(-PI / 2);
+    const strap = new THREE.Mesh(strapGeo, capMat); strap.position.z = -.05; g.add(strap);
+    return g;
+  }
+  function medal(){
+    const g = new THREE.Group();
+    const disc = new THREE.CylinderGeometry(.6, .6, .1, 64); disc.rotateX(PI / 2); g.add(new THREE.Mesh(disc, gold));
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(.6, .045, 12, 64), gold));
+    const face = canvasTex(512, 512, (c, w, h) => {
+      const gr = c.createRadialGradient(w * .4, h * .35, 10, w / 2, h / 2, w / 2); gr.addColorStop(0, '#fff2b8'); gr.addColorStop(1, '#d99a14');
+      c.fillStyle = gr; c.fillRect(0, 0, w, h);
+      c.strokeStyle = 'rgba(120,70,0,.55)'; c.lineWidth = 10; c.beginPath(); c.arc(w / 2, h / 2, w * .42, 0, TAU); c.stroke();
+      c.fillStyle = 'rgba(110,62,0,.85)'; c.font = `900 250px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('1', w / 2, h * .47);
+      c.font = `700 44px ${FONT}`; c.fillText('DTSWIM', w / 2, h * .79);
+    });
+    document.fonts && document.fonts.ready.then(face.userData.redraw);
+    g.add(mesh(new THREE.CircleGeometry(.5, 64), new THREE.MeshPhysicalMaterial({ map: face, metalness: .85, roughness: .25, clearcoat: 1 }), 0, 0, .052));
+    g.add(mesh(new THREE.TorusGeometry(.1, .03, 8, 24), gold, 0, .68, 0));
+    const stripes = canvasTex(64, 256, (c, w) => { ['#F0483E', '#ffffff', '#4FD1D9'].forEach((col, i) => { c.fillStyle = col; c.fillRect(i * w / 3, 0, w / 3 + 1, 256); }); });
+    [-1, 1].forEach(s => {
+      const piv = new THREE.Group(); piv.position.set(s * .06, .72, -.03); piv.rotation.z = -s * .3; g.add(piv);
+      piv.add(mesh(new THREE.BoxGeometry(.3, 1.3, .015), M(0xffffff, { map: stripes, roughness: .6, clearcoat: .2 }), 0, .65, 0));
+    });
+    return g;
+  }
+  let secHand, minHand;
+  function stopwatch(){
+    const g = new THREE.Group();
+    const body = new THREE.CylinderGeometry(.78, .78, .24, 64); body.rotateX(PI / 2); g.add(new THREE.Mesh(body, chrome));
+    g.add(mesh(new THREE.TorusGeometry(.73, .05, 16, 64), chrome, 0, 0, .12));
+    const dial = canvasTex(512, 512, (c, w, h) => {
+      c.fillStyle = '#f4fbfc'; c.beginPath(); c.arc(w / 2, h / 2, w / 2, 0, TAU); c.fill();
+      for (let i = 0; i < 60; i++){
+        const a = i / 60 * TAU, big = i % 5 === 0, r1 = w * .46, r0 = r1 - (big ? 34 : 16);
+        c.strokeStyle = big ? '#F0483E' : '#03213A'; c.lineWidth = big ? 7 : 3;
+        c.beginPath(); c.moveTo(w / 2 + Math.sin(a) * r0, h / 2 - Math.cos(a) * r0); c.lineTo(w / 2 + Math.sin(a) * r1, h / 2 - Math.cos(a) * r1); c.stroke();
+      }
+      c.fillStyle = '#03213A'; c.font = `700 40px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+      [['60', 0], ['15', 1], ['30', 2], ['45', 3]].forEach(([s, k]) => { const a = k * PI / 2, r = w * .31; c.fillText(s, w / 2 + Math.sin(a) * r, h / 2 - Math.cos(a) * r); });
+      c.textAlign = 'left'; logo(c, w / 2, h * .66, 36, '#03213A', '#1a9fb0');
+    });
+    document.fonts && document.fonts.ready.then(dial.userData.redraw);
+    g.add(mesh(new THREE.CircleGeometry(.7, 64), new THREE.MeshPhysicalMaterial({ map: dial, roughness: .4, clearcoat: 1 }), 0, 0, .121));
+    minHand = new THREE.Group(); minHand.position.z = .13; g.add(minHand);
+    minHand.add(mesh(new THREE.BoxGeometry(.05, .4, .012), navy, 0, .17, 0));
+    secHand = new THREE.Group(); secHand.position.z = .138; g.add(secHand);
+    secHand.add(mesh(new THREE.BoxGeometry(.024, .66, .012), red, 0, .22, 0));
+    const pin = new THREE.CylinderGeometry(.045, .045, .03, 20); pin.rotateX(PI / 2); g.add(mesh(pin, red, 0, 0, .145));
+    g.add(mesh(new THREE.CylinderGeometry(.11, .11, .16, 24), chrome, 0, .86, 0));
+    const btn = mesh(new THREE.CylinderGeometry(.07, .07, .14, 20), red, Math.sin(.7) * .84, Math.cos(.7) * .84, 0); btn.rotation.z = -.7; g.add(btn);
+    g.add(mesh(new THREE.TorusGeometry(.14, .035, 10, 24), chrome, 0, 1.04, 0));
+    return g;
+  }
+  let capTex;
+  function swimCap(){
+    capTex = canvasTex(1024, 512, (c, w, h) => { c.fillStyle = accent; c.fillRect(0, 0, w, h); c.textAlign = 'left'; logo(c, w * .25, h * .62, 120, '#03213A', '#ffffff'); });
+    document.fonts && document.fonts.ready.then(capTex.userData.redraw);
+    const geo = new THREE.SphereGeometry(.9, 64, 32, 0, TAU, 0, PI * .56);
+    const m = new THREE.Mesh(geo, M(0xffffff, { map: capTex, roughness: .22, side: THREE.DoubleSide }));
+    m.scale.set(1, 1, 1.12); const g = new THREE.Group(); g.add(m); return g;
+  }
+
+  // el — раздел, рядом с которым всплывает предмет; side — у какого края; z — глубина; p — параллакс (меньше — «глубже»)
+  const PROPS = [
+    { o: ringBuoy(),  el: '.manifest',  side: -1, z: -1.5, s: 1,    p: .8,  spin: .8 },
+    { o: kickboard(), el: '#schedule',  side: 1,  z: -.5,  s: 1.05, p: .9,  spin: 1 },
+    { o: pullBuoy(),  el: '.water-block',  side: -1, z: -1,   s: 1.1,  p: .85, spin: 1.2 },
+    { o: goggles(),   el: '.dry-block', side: 1,  z: 0,    s: 1,    p: .95, spin: .7 },
+    { o: medal(),     el: '#coaches',   side: 1,  z: -.5,  s: 1,    p: .85, spin: .9 },
+    { o: stopwatch(), el: '#prices',    side: -1, z: -.5,  s: .95,  p: .9,  spin: .6 },
+    { o: swimCap(),   el: '#signup',    side: 1,  z: -.5,  s: 1,    p: .85, spin: .8 }
+  ];
+  PROPS.forEach(P => { P.node = document.querySelector(P.el); P.top = P.bot = 1e9; scene.add(P.o); });
+
+  /* ---------- пузыри: всплывают, быстрее при резкой прокрутке ---------- */
+  const BN = small ? 34 : 70;
+  const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 24, 16),
+    new THREE.MeshPhysicalMaterial({ color: 0xcffaff, roughness: 0, transparent: true, opacity: .24, clearcoat: 1, envMapIntensity: 2.2, depthWrite: false }), BN);
+  bubbles.frustumCulled = false; bubbles.renderOrder = 4; scene.add(bubbles);
+  const bd = Array.from({ length: BN }, () => ({ x: Math.random() - .5, y: Math.random(), z: lerp(-6, 4, Math.random()), r: .03 + Math.random() ** 3 * .12, v: .5 + Math.random() * .7, w: Math.random() * TAU }));
+
+  /* ---------- размеры, мышь, цвет шапочки ---------- */
+  let dpr = Math.min(devicePixelRatio || 1, small ? 1.5 : 1.75);
+  function resize(){ renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); }
+  resize(); addEventListener('resize', resize);
+  const ptr = { x: 0, y: 0, tx: 0, ty: 0 };
+  if (fine) addEventListener('pointermove', e => { ptr.tx = e.clientX / innerWidth - .5; ptr.ty = .5 - e.clientY / innerHeight; }, { passive: true });
+  const visH = z => 2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)) * (cam.position.z - z);
+  const scrollPos = () => window.DT_LENIS ? window.DT_LENIS.scroll : scrollY;
+  let lastMeasure = -1e9;
+  function measure(now, sy){
+    if (now - lastMeasure < 500) return; lastMeasure = now;
+    PROPS.forEach((P, i) => { if (!P.node) return; const r = P.node.getBoundingClientRect(); P.top = r.top + sy; P.bot = i === PROPS.length - 1 ? 1e9 : r.bottom + sy; });
+    const a = css('--yellow');
+    if (a && a !== accent){ accent = a; capMat.color.set(a); capTex.userData.redraw(); }
+  }
+
+  /* ---------- кадр ---------- */
+  let prevNow = performance.now(), prevSy = scrollPos(), fSum = 0, fN = 0, started = false;
+  function frame(now){
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
+    const dt = Math.min(.1, (now - prevNow) / 1000); prevNow = now;
+    if (dt > 0 && dt < .25){ fSum += dt; fN++; }
+    if (fN >= 90){ const avg = fSum / fN; fSum = fN = 0; if (avg > 1 / 40 && dpr > 1){ dpr = Math.max(1, dpr - .25); resize(); } }   // слабое устройство — меньше пикселей
+    const t = reduce ? 2.1 : now / 1000;
+    const sy = scrollPos(), dsy = sy - prevSy; prevSy = sy;
+    measure(now, sy);
+    const depth = WATER.depth || 0, vel = Math.max(-1, Math.min(1, WATER.vel || 0));
+    const dive = sstep(depth, .05, .17), under = sstep(depth, .1, .45);
+    const k = 1 - Math.exp(-dt * 3); ptr.x += (ptr.tx - ptr.x) * k; ptr.y += (ptr.ty - ptr.y) * k;
+    cam.position.x = ptr.x * .7; cam.position.y = ptr.y * .45; cam.lookAt(0, 0, 0);
+    const narrow = cam.aspect < .9, H0 = visH(0);
+
+    // свет и туман: под водой темнее и синее
+    scene.fog.far = lerp(70, 24, under); scene.fog.near = lerp(14, 8, under);
+    hemi.intensity = lerp(.85, .55, under); key.intensity = lerp(2.5, 1.5, under) * (1 + .12 * Math.sin(t * 3.1) * under);
+
+    // первый экран: пловец на поверхности; при нырке уходит вверх и разворачивается — видим его снизу
+    hero.visible = dive < .985;
+    if (hero.visible){
+      hero.position.set(narrow ? 0 : H0 * cam.aspect * .27, (narrow ? H0 * .29 : .25) + dive * dive * H0 * 1.15, 0);
+      hero.rotation.set(0, ptr.x * .12, (narrow ? PI + .3 : PI + .45));
+      hero.scale.setScalar(narrow ? 1.05 : 1.95);
+      pool.rotation.x = PI / 2 + .45 + dive * 1.5 - ptr.y * .1;
+      swimmer.userData.pose(t);
+      if (!reduce){ updateRopes(t); scene.updateMatrixWorld(); updateFoam(dt); }
+      else if (!started) updateRopes(t);
+    }
+
+    // предметы рядом с разделами
+    PROPS.forEach((P, i) => {
+      const H = visH(P.z), Wd = H * cam.aspect;
+      // приплывает снизу, пока раздел на экране — держится у края, потом уплывает вверх
+      const dIn = (sy - P.top + innerHeight * .35) / innerHeight, dOut = (sy - P.bot + innerHeight * .6) / innerHeight;
+      const dy = dIn < 0 ? dIn : Math.max(0, dOut), hold = dIn < 0 ? 0 : Math.min(dIn, Math.max(0, (P.bot - P.top) / innerHeight - .95));
+      const y = dy * H * P.p + Math.sin(hold * 2.2) * .25 * H * (dy === 0 ? 1 : 0);
+      P.o.visible = Math.abs(y) < H * .9 && dive > .5;
+      if (!P.o.visible) return;
+      const sc = (narrow ? .6 : 1) * P.s;
+      const x = P.side * (Wd / 2 - (narrow ? .3 : .75) * sc);   // наполовину за краем экрана — не мешает тексту
+      P.o.position.set(x + Math.sin(t * .5 + i) * .08, y + Math.sin(t * .8 + i * 2) * .12, P.z);
+      P.o.scale.setScalar(sc);
+      P.o.rotation.set(.35 * Math.sin(t * .4 + i) + (dy + hold) * .8 - ptr.y * .4,
+        -P.side * .55 + Math.sin(t * .3 * P.spin + i) * .6 + (dy + hold) * 1.3 * P.side + ptr.x * .6 + vel * .6,
+        .15 * Math.sin(t * .6 + i));
+    });
+    if (secHand){ const d = new Date(), s = d.getSeconds() + d.getMilliseconds() / 1000; secHand.rotation.z = -s / 60 * TAU; minHand.rotation.z = -(d.getMinutes() + s / 60) / 60 * TAU; }
+
+    // пузыри живут в объёме вокруг камеры и сдвигаются вместе со страницей
+    bubbles.visible = depth > .08;
+    if (bubbles.visible){
+      const show = sstep(depth, .08, .22);
+      bd.forEach((b, i) => {
+        const H = visH(b.z), Wd = H * cam.aspect;
+        if (!reduce) b.y += (b.v * (1 + Math.abs(vel) * 4) * dt) / H + dsy / innerHeight * .6;
+        b.y -= Math.floor(b.y);
+        dummy.position.set(b.x * Wd * 1.1 + Math.sin(t * 1.3 + b.w) * .12, (b.y - .5) * H * 1.2, b.z);
+        dummy.rotation.set(0, 0, 0);
+        dummy.scale.set(b.r * show, b.r * show * (1 + .08 * Math.sin(t * 6 + b.w)), b.r * show);
+        dummy.updateMatrix(); bubbles.setMatrixAt(i, dummy.matrix);
+      });
+      bubbles.instanceMatrix.needsUpdate = true;
+    }
+
+    renderer.render(scene, cam);
+    if (!started){ started = true; document.documentElement.classList.add('has-3d'); }
+  }
+  requestAnimationFrame(frame);
+  cv.addEventListener('webglcontextlost', e => { e.preventDefault(); document.documentElement.classList.remove('has-3d'); });
+})();
 </script>
 </body>
 </html>
