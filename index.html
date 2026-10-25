@@ -1187,7 +1187,7 @@ applyCap(capSaved || '#FFC531');
     <h2 id="aboutTitle">О проекте</h2>
     <p>Сайт школы плавания DTswim: расписание со свободными местами, программы на воде и на суше, тренеры, цены и запись в Telegram.</p>
     <div class="a-grid">
-      <div><b>3D и погружение</b><span>Живая вода на WebGL и 3D-сцена на Three.js: дорожки, нырок сквозь поверхность, «ворота» между разделами и инвентарь, который всплывает рядом с текстом.</span></div>
+      <div><b>3D и погружение</b><span>Живая вода на WebGL и 3D-сцена на Three.js: капля «жидкого металла» перетекает от раздела к разделу, рядом всплывают очки, медаль и секундомер.</span></div>
       <div><b>Скролл-переходы</b><span>Плавная прокрутка, закреплённые сцены, горизонтальное расписание, стопка карточек тренеров, буквы, которые собираются и разлетаются.</span></div>
       <div><b>Полезные инструменты</b><span>Калькуляторы стоимости и темпа, календарь расписания, заявка в Telegram, дневник с уровнями.</span></div>
       <div><b>Для телефона</b><span>Адаптивная вёрстка, нижнее меню, качество воды подстраивается под устройство.</span></div>
@@ -1763,11 +1763,11 @@ window.DT_WATER = WATER;   // 3D-сцена берёт отсюда глубин
 </script>
 <script type="module">
 /* =====================================================================
-   3D-СЦЕНА (Three.js). На первом экране — разделители дорожек, вид сверху;
-   при нырке они уходят вверх. На границе разделов — «ворота»: две дорожки
-   летят навстречу, мы проносимся между ними, и вверх уходит волна пузырей.
-   Рядом с разделами всплывает инвентарь: круг, доска, колобашка, очки,
-   медаль, секундомер и шапочка (её цвет = «цвет шапочки» в подвале).
+   3D-СЦЕНА (Three.js). Главный герой — «жидкий металл»: перламутровая
+   капля, которая дышит и переливается. На первом экране она крупная,
+   дальше перетекает от раздела к разделу; в момент перехода деформируется,
+   камера делает лёгкий рывок, и вверх уходит волна пузырей.
+   Рядом с разделами — металлические предметы: очки, медаль, секундомер.
    ===================================================================== */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -1784,18 +1784,18 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   catch (e) { console.warn('DTswim 3D: WebGL недоступен', e); return; }
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.1;
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), .04).texture;
-  scene.fog = new THREE.Fog(0x04304f, 10, 60);
+  scene.fog = new THREE.Fog(0x04304f, 14, 70);
   const cam = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100);
   cam.position.set(0, 0, 12);
 
   const hemi = new THREE.HemisphereLight(0xcff9ff, 0x03213a, .8); scene.add(hemi);
   const key = new THREE.DirectionalLight(0xfff3dd, 2.4); key.position.set(3, 6, 8); scene.add(key);
-  const rim = new THREE.DirectionalLight(0x4fd1d9, 1.8); rim.position.set(-6, -2, -4); scene.add(rim);
+  const rim = new THREE.DirectionalLight(0x4fd1d9, 2.2); rim.position.set(-6, -2, -4); scene.add(rim);
 
   /* ---------- помощники ---------- */
   const PI = Math.PI, TAU = PI * 2;
@@ -1803,12 +1803,11 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   let accent = css('--yellow') || '#FFC531';
   const M = (color, o = {}) => new THREE.MeshPhysicalMaterial({ color, roughness: .28, clearcoat: 1, clearcoatRoughness: .12, ...o });
-  const capsule = (r, l, mat) => new THREE.Mesh(new THREE.CapsuleGeometry(r, l, 8, 20), mat);
   const mesh = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); return m; };
-  // текстура из <canvas>; перерисовывается, когда загрузились шрифты или сменился цвет
-  function canvasTex(w, h, draw, srgb = true){
+  // текстура из <canvas>; перерисовывается, когда загрузились шрифты
+  function canvasTex(w, h, draw){
     const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 4; t.userData.redraw = () => { const g = c.getContext('2d'); g.clearRect(0, 0, w, h); draw(g, w, h); t.needsUpdate = true; };
     t.userData.redraw(); return t;
   }
@@ -1824,74 +1823,48 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   const mirror = M(0x7fe9f0, { metalness: 1, roughness: .06, iridescence: 1, iridescenceIOR: 1.8 });
   const chrome = M(0xdfe8eb, { metalness: 1, roughness: .16 });
   const gold = M(0xffc94a, { metalness: 1, roughness: .2 });
-  const red = M(0xF0483E, { roughness: .32 }), aqua = M(0x4FD1D9, { roughness: .3 }), white = M(0xf4fbfc, { roughness: .3 }), navy = M(0x0b2c4d, { roughness: .35 });
-
-  /* ---------- первый экран: бассейн ---------- */
-  const SPEED = 1.7;                                          // м/с — с этой скоростью «едут» поплавки
-  const hero = new THREE.Group(); scene.add(hero);            // поворот в плоскости экрана
-  const pool = new THREE.Group(); hero.add(pool);             // наклон: смотрим на воду сверху под углом
-
-  // разделители дорожек: поплавки-катушки красные, белые и бирюзовые — как «дорожка» в заголовках
-  const prof = [[0,-.06],[.03,-.06],[.05,-.052],[.06,-.035],[.047,-.018],[.06,0],[.047,.018],[.06,.035],[.05,.052],[.03,.06],[0,.06]]
-    .map(p => new THREE.Vector2(p[0] * 1.3, p[1] * 1.3));
-  const floatGeo = new THREE.LatheGeometry(prof, 28); floatGeo.rotateX(PI / 2);
-  const SP = .16, NF = 108, LEN = SP * NF;
-  const ROPE_C = [0xF0483E, 0xffffff, 0x4FD1D9].map(c => new THREE.Color(c));
-  const ropes = [-1.25, 1.25].map(x => {
-    const m = new THREE.InstancedMesh(floatGeo, M(0xffffff, { roughness: .35 }), NF);
-    for (let i = 0; i < NF; i++) m.setColorAt(i, ROPE_C[Math.floor(i / 6) % 3]);
-    m.userData.x = x; m.frustumCulled = false; pool.add(m); return m;
-  });
-  const dummy = new THREE.Object3D();
-  function updateRopes(t){
-    const off = (t * SPEED) % LEN;
-    ropes.forEach((m, r) => {
-      for (let i = 0; i < NF; i++){
-        const z = ((i * SP - off) % LEN + LEN) % LEN - LEN / 2;
-        dummy.position.set(m.userData.x, .012 * Math.sin(z * 2.1 + t * 2.4 + r * 2), z);
-        dummy.rotation.set(0, 0, i * .7 + t * .8);
-        dummy.scale.setScalar(sstep(5.2 - Math.abs(z), 0, 2.4));   // концы дорожек тают — не перечёркивают заголовок
-        dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix);
-      }
-      m.instanceMatrix.needsUpdate = true;
-    });
-  }
+  const red = M(0xF0483E, { roughness: .32 }), navy = M(0x0b2c4d, { roughness: .35 });
 
   /* =====================================================================
-     ИНВЕНТАРЬ, который всплывает рядом с разделами
+     ЖИДКИЙ МЕТАЛЛ: сфера, которую вершинный шейдер «раскачивает» плавным полем;
+     нормали считаются там же — блики честно скользят по волнам
      ===================================================================== */
-  function ringBuoy(){
-    const g = new THREE.Group(), geo = new THREE.TorusGeometry(.9, .3, 40, 120);
-    const pos = geo.attributes.position, col = [], R = new THREE.Color(0xF0483E), Wt = new THREE.Color(0xf4fbfc);
-    for (let i = 0; i < pos.count; i++){ const c = Math.floor((Math.atan2(pos.getY(i), pos.getX(i)) + PI) / (PI / 4)) % 2 ? R : Wt; col.push(c.r, c.g, c.b); }
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-    g.add(new THREE.Mesh(geo, M(0xffffff, { vertexColors: true, roughness: .35 })));
-    const ropeM = M(0xe9dcc0, { roughness: .85, clearcoat: 0 });
-    g.add(new THREE.Mesh(new THREE.TorusGeometry(1.24, .024, 8, 160), ropeM));
-    for (let k = 0; k < 4; k++){
-      const a = k * PI / 2 + PI / 8, clip = mesh(new THREE.TorusGeometry(.33, .035, 10, 32), ropeM, Math.cos(a) * .9, Math.sin(a) * .9, 0);
-      clip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(-Math.sin(a), Math.cos(a), 0)); g.add(clip);
-    }
-    return g;
-  }
-  function kickboard(){
-    const g = new THREE.Group(), s = new THREE.Shape();
-    s.moveTo(-.45, -.75); s.lineTo(.45, -.75); s.quadraticCurveTo(.55, -.75, .55, -.65); s.lineTo(.55, .3);
-    s.quadraticCurveTo(.55, .8, 0, .82); s.quadraticCurveTo(-.55, .8, -.55, .3); s.lineTo(-.55, -.65); s.quadraticCurveTo(-.55, -.75, -.45, -.75);
-    const geo = new THREE.ExtrudeGeometry(s, { depth: .12, bevelEnabled: true, bevelThickness: .05, bevelSize: .05, bevelSegments: 5, curveSegments: 40 });
-    geo.center(); g.add(new THREE.Mesh(geo, M(0x1e9ad6, { roughness: .3 })));
-    const tex = canvasTex(512, 160, (c, w, h) => logo(c, w / 2, h / 2, 104, '#ffffff', '#FFE08A'));
-    document.fonts && document.fonts.ready.then(tex.userData.redraw);
-    const decal = mesh(new THREE.PlaneGeometry(.92, .29), new THREE.MeshPhysicalMaterial({ map: tex, transparent: true, roughness: .3, clearcoat: 1, polygonOffset: true, polygonOffsetFactor: -2 }), 0, .12, .1115);
-    g.add(decal); return g;
-  }
-  function pullBuoy(){
-    const g = new THREE.Group();
-    g.add(mesh(new THREE.CapsuleGeometry(.24, .42, 10, 28), red, -.27, 0, 0));
-    g.add(mesh(new THREE.CapsuleGeometry(.24, .42, 10, 28), aqua, .27, 0, 0));
-    const strap = mesh(new THREE.CylinderGeometry(.1, .1, .36, 24), white); strap.rotation.z = PI / 2; g.add(strap);
-    return g;
-  }
+  const blobU = { uT: { value: 0 }, uAmp: { value: .12 } };
+  const blobMat = new THREE.MeshPhysicalMaterial({ color: 0xc4f4ff, metalness: 1, roughness: .05, iridescence: 1, iridescenceIOR: 1.7,
+    iridescenceThicknessRange: [320, 1150], clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: 1.5 });
+  blobMat.onBeforeCompile = sh => {
+    sh.uniforms.uT = blobU.uT; sh.uniforms.uAmp = blobU.uAmp;
+    sh.vertexShader = `uniform float uT; uniform float uAmp;
+float fld(vec3 p){
+  return .55 * sin(p.x * 1.6 + uT * .9) * sin(p.y * 1.8 + uT * .7) * sin(p.z * 1.4 + uT * 1.1)
+       + .3 * sin(p.x * 2.9 - uT * 1.2 + p.z * 1.7) * sin(p.y * 2.4 + uT * .8)
+       + .15 * sin(dot(p, vec3(4.1, 3.3, -3.7)) + uT * 1.7);
+}
+vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); }
+` + sh.vertexShader
+      .replace('#include <beginnormal_vertex>', `
+  vec3 dP = dsp(position), nn = normalize(position);
+  vec3 tt = normalize(cross(nn, abs(nn.y) < .99 ? vec3(0., 1., 0.) : vec3(1., 0., 0.))), bb = cross(nn, tt);
+  vec3 objectNormal = normalize(cross(dsp(position + tt * .012) - dP, dsp(position + bb * .012) - dP));
+  #ifdef USE_TANGENT
+    vec3 objectTangent = vec3(tangent.xyz);
+  #endif`)
+      .replace('#include <begin_vertex>', 'vec3 transformed = dP;');
+  };
+  const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(1, small ? 28 : 56), blobMat);
+  scene.add(blob);
+  // где капля стоит у каждого раздела: x — доля ширины экрана, y — доля высоты, s — размер
+  const PATH = [
+    { el: null,        x: .31,  y: .02, s: .92,  mx: 0,    my: .25, ms: .6 },
+    { el: '.manifest', x: .41,  y: .05, s: .46,  mx: .44,  my: .1,  ms: .36 },
+    { el: '#schedule', x: .42,  y: .12, s: .44,  mx: .46,  my: .25, ms: .34 },
+    { el: '#programs', x: -.45, y: -.2, s: .42,  mx: -.46, my: .2,  ms: .34 },
+    { el: '#coaches',  x: -.44, y: .05, s: .46,  mx: -.46, my: .25, ms: .34 },
+    { el: '#prices',   x: .43,  y: .05, s: .46,  mx: .46,  my: .2,  ms: .34 },
+    { el: '#signup',   x: .3,   y: -.05, s: .78, mx: .3,   my: .28, ms: .45 }
+  ].map(p => ({ ...p, node: p.el && document.querySelector(p.el), at: 0 }));
+
+  /* ---------- металлические предметы рядом с разделами ---------- */
   function goggles(){
     const g = new THREE.Group(), frame = M(0x0b2c4d, { roughness: .25 });
     [-1, 1].forEach(s => {
@@ -1952,55 +1925,32 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     g.add(mesh(new THREE.TorusGeometry(.14, .035, 10, 24), chrome, 0, 1.04, 0));
     return g;
   }
-  let capTex;
-  function swimCap(){
-    capTex = canvasTex(1024, 512, (c, w, h) => { c.fillStyle = accent; c.fillRect(0, 0, w, h); c.textAlign = 'left'; logo(c, w * .25, h * .62, 120, '#03213A', '#ffffff'); });
-    document.fonts && document.fonts.ready.then(capTex.userData.redraw);
-    const geo = new THREE.SphereGeometry(.9, 64, 32, 0, TAU, 0, PI * .56);
-    const m = new THREE.Mesh(geo, M(0xffffff, { map: capTex, roughness: .22, side: THREE.DoubleSide }));
-    m.scale.set(1, 1, 1.12); const g = new THREE.Group(); g.add(m); return g;
-  }
-
-  // el — раздел, рядом с которым всплывает предмет; side — у какого края; z — глубина; p — параллакс (меньше — «глубже»)
+  // el — раздел, рядом с которым всплывает предмет; side — у какого края (напротив капли); z — глубина; p — параллакс
   const PROPS = [
-    { o: ringBuoy(),  el: '.manifest',  side: -1, z: -1.5, s: 1,    p: .8,  spin: .8 },
-    { o: kickboard(), el: '#schedule',  side: 1,  z: -.5,  s: 1.05, p: .9,  spin: 1 },
-    { o: pullBuoy(),  el: '.water-block',  side: -1, z: -1,   s: 1.1,  p: .85, spin: 1.2 },
-    { o: goggles(),   el: '.dry-block', side: 1,  z: 0,    s: 1,    p: .95, spin: .7 },
-    { o: medal(),     el: '#coaches',   side: 1,  z: -.5,  s: 1,    p: .85, spin: .9 },
-    { o: stopwatch(), el: '#prices',    side: -1, z: -.5,  s: .95,  p: .9,  spin: .6 },
-    { o: swimCap(),   el: '#signup',    side: 1,  z: -.5,  s: 1,    p: .85, spin: .8 }
+    { o: goggles(),   el: '.dry-block', side: 1,  z: 0,   s: 1,   p: .95, spin: .7 },
+    { o: medal(),     el: '#coaches',   side: 1,  z: -.5, s: 1,   p: .85, spin: .9 },
+    { o: stopwatch(), el: '#prices',    side: -1, z: -.5, s: .95, p: .9,  spin: .6 }
   ];
   PROPS.forEach(P => { P.node = document.querySelector(P.el); P.top = P.bot = 1e9; scene.add(P.o); });
 
   /* ---------- пузыри: всплывают, быстрее при резкой прокрутке ---------- */
-  const BN = small ? 34 : 70;
+  const BN = small ? 22 : 40;
   const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 24, 16),
-    new THREE.MeshPhysicalMaterial({ color: 0xcffaff, roughness: 0, transparent: true, opacity: .24, clearcoat: 1, envMapIntensity: 2.2, depthWrite: false }), BN);
+    new THREE.MeshPhysicalMaterial({ color: 0xcffaff, roughness: 0, transparent: true, opacity: .2, clearcoat: 1, envMapIntensity: 2.2, depthWrite: false }), BN);
   bubbles.frustumCulled = false; bubbles.renderOrder = 4; scene.add(bubbles);
-  const bd = Array.from({ length: BN }, () => ({ x: Math.random() - .5, y: Math.random(), z: lerp(-6, 4, Math.random()), r: .03 + Math.random() ** 3 * .12, v: .5 + Math.random() * .7, w: Math.random() * TAU }));
+  const bd = Array.from({ length: BN }, () => ({ x: Math.random() - .5, y: Math.random(), z: lerp(-6, 4, Math.random()), r: .03 + Math.random() ** 3 * .1, v: .5 + Math.random() * .7, w: Math.random() * TAU }));
+  const dummy = new THREE.Object3D();
 
-  /* ---------- переходы между разделами: «ворота» из двух дорожек и волна пузырей ---------- */
-  const GATE_N = 100, gate = new THREE.Group(); gate.visible = false; scene.add(gate);
-  const gateRopes = [1, -1].map(s => {
-    const m = new THREE.InstancedMesh(floatGeo, M(0xffffff, { roughness: .35 }), GATE_N);
-    for (let i = 0; i < GATE_N; i++){
-      m.setColorAt(i, ROPE_C[Math.floor(i / 6) % 3]);
-      dummy.position.set((i - GATE_N / 2) * SP, 0, 0); dummy.rotation.set(0, PI / 2, i * .7); dummy.scale.setScalar(1);
-      dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix);
-    }
-    m.position.y = s * 1.35; m.frustumCulled = false; gate.add(m); return m;
-  });
-  const GATES = ['#schedule', '#programs', '#coaches', '#prices', '#signup'].map(q => ({ node: document.querySelector(q), top: 1e9, passed: false }));
-  const BURST_N = small ? 40 : 80;
+  /* ---------- переход между разделами: волна пузырей и рывок камеры ---------- */
+  const BURST_N = small ? 36 : 70;
   const burst = new THREE.InstancedMesh(bubbles.geometry, bubbles.material, BURST_N);
   burst.frustumCulled = false; burst.renderOrder = 4; scene.add(burst);
   const bu = Array.from({ length: BURST_N }, () => ({ life: 0, x: 0, y: 0, z: 0, v: 0, r: 0, w: 0 }));
-  let punch = 0;                                     // «рывок» камеры в момент прохода ворот
+  let punch = 0;
   function fireBurst(dir){
     punch = 1;
-    bu.forEach(b => { b.life = 1 + Math.random() * .6; b.x = Math.random() - .5; b.z = lerp(-4, 6, Math.random()); b.y = -.65 - Math.random() * .5;
-      b.v = (.9 + Math.random() * .9) * dir; if (dir < 0) b.y = .65 + Math.random() * .5; b.r = .04 + Math.random() ** 2 * .2; b.w = Math.random() * TAU; });
+    bu.forEach(b => { b.life = 1 + Math.random() * .6; b.x = Math.random() - .5; b.z = lerp(-4, 6, Math.random());
+      b.y = dir > 0 ? -.65 - Math.random() * .5 : .65 + Math.random() * .5; b.v = (.9 + Math.random() * .9) * dir; b.r = .04 + Math.random() ** 2 * .16; b.w = Math.random() * TAU; });
   }
 
   /* ---------- размеры, мышь, цвет шапочки ---------- */
@@ -2014,14 +1964,15 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   let lastMeasure = -1e9;
   function measure(now, sy){
     if (now - lastMeasure < 500) return; lastMeasure = now;
-    PROPS.forEach((P, i) => { if (!P.node) return; const r = P.node.getBoundingClientRect(); P.top = r.top + sy; P.bot = i === PROPS.length - 1 ? 1e9 : r.bottom + sy; });
-    GATES.forEach(G => { if (G.node) G.top = G.node.getBoundingClientRect().top + sy; });
+    PROPS.forEach(P => { if (!P.node) return; const r = P.node.getBoundingClientRect(); P.top = r.top + sy; P.bot = r.bottom + sy; });
+    PATH.forEach(P => { if (P.node) P.at = P.node.getBoundingClientRect().top + sy; });
     const a = css('--yellow');
-    if (a && a !== accent){ accent = a; capMat.color.set(a); capTex.userData.redraw(); }
+    if (a && a !== accent){ accent = a; capMat.color.set(a); }   // ремешок очков — в цвет шапочки
   }
 
   /* ---------- кадр ---------- */
-  let prevNow = performance.now(), prevSy = scrollPos(), fSum = 0, fN = 0, started = false;
+  let prevNow = performance.now(), prevSy = scrollPos(), fSum = 0, fN = 0, started = false, bT = 0, amp = .12;
+  const kPrev = PATH.map(() => 0), bs = { x: 0, y: 0, s: 1 };
   function frame(now){
     if (document.hidden) return;
     const dt = Math.min(.1, (now - prevNow) / 1000); prevNow = now;
@@ -2034,30 +1985,39 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     const dive = sstep(depth, .05, .17), under = sstep(depth, .1, .45);
     const k = 1 - Math.exp(-dt * 3); ptr.x += (ptr.tx - ptr.x) * k; ptr.y += (ptr.ty - ptr.y) * k;
     punch *= Math.exp(-dt * 3.2);
-    cam.position.set(ptr.x * .7, ptr.y * .45, 12 - punch * 1.6); cam.lookAt(0, 0, 0);
-    const fov = 35 + punch * 9; if (Math.abs(cam.fov - fov) > .01){ cam.fov = fov; cam.updateProjectionMatrix(); }
-    const narrow = cam.aspect < .9, H0 = visH(0);
+    cam.position.set(ptr.x * .7, ptr.y * .45, 12 - punch * .9); cam.lookAt(0, 0, 0);
+    const fov = 35 + punch * 5; if (Math.abs(cam.fov - fov) > .01){ cam.fov = fov; cam.updateProjectionMatrix(); }
+    const narrow = cam.aspect < .9, ih = innerHeight;
 
     // свет и туман: под водой темнее и синее
-    scene.fog.far = lerp(70, 24, under); scene.fog.near = lerp(14, 8, under);
-    hemi.intensity = lerp(.85, .55, under); key.intensity = lerp(2.5, 1.5, under) * (1 + .12 * Math.sin(t * 3.1) * under);
+    scene.fog.far = lerp(70, 30, under); scene.fog.near = lerp(14, 9, under);
+    hemi.intensity = lerp(.85, .6, under); key.intensity = lerp(2.5, 1.7, under) * (1 + .1 * Math.sin(t * 3.1) * under);
 
-    // первый экран: дорожки на поверхности; при нырке уходят вверх и разворачиваются — видим их снизу
-    hero.visible = dive < .985;
-    if (hero.visible){
-      hero.position.set(narrow ? 0 : H0 * cam.aspect * .31, (narrow ? H0 * .29 : .25) + dive * dive * H0 * 1.15, 0);
-      hero.rotation.set(0, ptr.x * .12, (narrow ? PI + .3 : PI + .45));
-      hero.scale.setScalar(narrow ? 1.05 : 1.7);
-      pool.rotation.x = PI / 2 + .45 + dive * 1.5 - ptr.y * .1;
-      if (!reduce || !started) updateRopes(t);
+    // капля: от раздела к разделу; переход — пока начало раздела поднимается от низа экрана до 40% высоты
+    const g = i => narrow ? { x: PATH[i].mx, y: PATH[i].my, s: PATH[i].ms } : PATH[i];
+    let bx = g(0).x, by = g(0).y, bsc = g(0).s, trans = 0, arc = 0;
+    for (let i = 1; i < PATH.length; i++){
+      const kk = sstep(sy, PATH[i].at - ih, PATH[i].at - ih * .4), q = g(i);
+      bx = lerp(bx, q.x, kk); by = lerp(by, q.y, kk); bsc = lerp(bsc, q.s, kk);
+      const bump = Math.sin(PI * kk); trans = Math.max(trans, bump); arc += bump * (i % 2 ? 1 : -1);
+      if ((kk > .5) !== (kPrev[i] > .5) && !reduce && sy > ih * .5) fireBurst(kk > kPrev[i] ? 1 : -1);
+      kPrev[i] = kk;
     }
+    const BZ = -1, BH = visH(BZ), BW = BH * cam.aspect, sm = 1 - Math.exp(-dt * 8);
+    bs.x += (bx * BW - bs.x) * sm; bs.y += ((by - arc * .08) * BH - bs.y) * sm; bs.s += (bsc * BH * .24 - bs.s) * sm;
+    blob.position.set(bs.x + Math.sin(t * .4) * .1, bs.y + Math.sin(t * .6) * .12, BZ);
+    blob.scale.setScalar(bs.s * (1 + punch * .06));
+    blob.rotation.set(Math.sin(t * .2) * .3 - ptr.y * .4, t * .12 + ptr.x * .6, arc * .4);
+    amp += ((.1 + trans * .32 + Math.abs(vel) * .14) - amp) * (1 - Math.exp(-dt * 4));
+    if (!reduce) bT += dt * (.55 + trans * 1.6 + Math.abs(vel) * 1.2);
+    blobU.uT.value = bT; blobU.uAmp.value = amp;
 
     // предметы рядом с разделами
     PROPS.forEach((P, i) => {
       const H = visH(P.z), Wd = H * cam.aspect;
       // приплывает снизу, пока раздел на экране — держится у края, потом уплывает вверх
-      const dIn = (sy - P.top + innerHeight * .35) / innerHeight, dOut = (sy - P.bot + innerHeight * .6) / innerHeight;
-      const dy = dIn < 0 ? dIn : Math.max(0, dOut), hold = dIn < 0 ? 0 : Math.min(dIn, Math.max(0, (P.bot - P.top) / innerHeight - .95));
+      const dIn = (sy - P.top + ih * .35) / ih, dOut = (sy - P.bot + ih * .6) / ih;
+      const dy = dIn < 0 ? dIn : Math.max(0, dOut), hold = dIn < 0 ? 0 : Math.min(dIn, Math.max(0, (P.bot - P.top) / ih - .95));
       const y = dy * H * P.p + Math.sin(hold * 2.2) * .25 * H * (dy === 0 ? 1 : 0);
       P.o.visible = Math.abs(y) < H * .9 && dive > .5;
       if (!P.o.visible) return;
@@ -2069,21 +2029,6 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
         -P.side * .55 + Math.sin(t * .3 * P.spin + i) * .6 + (dy + hold) * 1.3 * P.side + ptr.x * .6 + vel * .6,
         .15 * Math.sin(t * .6 + i));
     });
-    // ворота: граница раздела снизу экрана — дорожки далеко в толще воды; на середине экрана — проносятся мимо камеры
-    gate.visible = false;
-    GATES.forEach((G, i) => {
-      const u = (sy + innerHeight - G.top) / innerHeight;
-      if (u > -.05 && u < .56){
-        gate.visible = true;
-        const e = Math.max(0, u) / .55;
-        gate.position.set(0, -.2 + e * .2, -32 + 44 * e * e);
-        gate.rotation.set(0, 0, (i % 2 ? -1 : 1) * (.1 + e * .25));
-        gateRopes.forEach((m, k) => { m.rotation.x = t * (k ? -.9 : .9) + e * 4; });
-      }
-      const was = G.passed; G.passed = u > .5;
-      if (G.passed !== was && !reduce && dive > .9) fireBurst(G.passed ? 1 : -1);
-    });
-
     if (secHand){ const d = new Date(), s = d.getSeconds() + d.getMilliseconds() / 1000; secHand.rotation.z = -s / 60 * TAU; minHand.rotation.z = -(d.getMinutes() + s / 60) / 60 * TAU; }
 
     // пузыри живут в объёме вокруг камеры и сдвигаются вместе со страницей
@@ -2092,7 +2037,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       const show = sstep(depth, .08, .22);
       bd.forEach((b, i) => {
         const H = visH(b.z), Wd = H * cam.aspect;
-        if (!reduce) b.y += (b.v * (1 + Math.abs(vel) * 4) * dt) / H + dsy / innerHeight * .6;
+        if (!reduce) b.y += (b.v * (1 + Math.abs(vel) * 4) * dt) / H + dsy / ih * .6;
         b.y -= Math.floor(b.y);
         dummy.position.set(b.x * Wd * 1.1 + Math.sin(t * 1.3 + b.w) * .12, (b.y - .5) * H * 1.2, b.z);
         dummy.rotation.set(0, 0, 0);
@@ -2102,7 +2047,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       bubbles.instanceMatrix.needsUpdate = true;
     }
 
-    // волна пузырей после ворот
+    // волна пузырей после перехода
     let alive = false;
     bu.forEach((b, i) => {
       if (b.life > 0){ b.life -= dt * .9; b.y += b.v * dt; alive = true; }
