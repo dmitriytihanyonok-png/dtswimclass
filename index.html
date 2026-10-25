@@ -308,7 +308,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--aqua)}
 .tip p.sw{opacity:0;transform:translateY(6px)}
 
 /* ---------- проверь себя: калории и стартовый сигнал ---------- */
-.fun-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:stretch}
+.burn{margin-top:16px}
 .burn .chips{margin:6px 8px 4px 0}
 .burn-out{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-top:18px}
 .gauge-w{position:relative;width:clamp(170px,17vw,220px);aspect-ratio:1}
@@ -326,23 +326,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--aqua)}
 .eq span:last-child{font-size:.78rem;color:rgba(234,251,253,.65)}
 .month{margin-top:16px;padding:12px 16px;border-radius:16px;background:rgba(255,197,49,.1);border:1px solid rgba(255,197,49,.35)}
 .month b{color:var(--yellow)}
-.react{display:flex;flex-direction:column;gap:14px}
-.pad{position:relative;flex:1;min-height:250px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;text-align:center;background:radial-gradient(120% 90% at 50% 0%,rgba(79,209,217,.22),rgba(2,21,38,.75));border:1.5px solid var(--line);transition:background .25s,border-color .25s,transform .15s,color .25s;touch-action:manipulation;user-select:none;-webkit-user-select:none}
-.pad:active{transform:scale(.985)}
-.pad b{font-family:var(--display);font-weight:900;font-size:clamp(2rem,4.2vw,3.2rem);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
-.pad small{color:rgba(234,251,253,.7);font-size:.92rem}
-.lights{display:flex;gap:12px;margin-bottom:6px}
-.lights i{width:18px;height:18px;border-radius:50%;background:rgba(234,251,253,.15);transition:background .2s,box-shadow .2s}
-.lights i.on{background:var(--red);box-shadow:0 0 18px var(--red)}
-.pad[data-s="go"]{background:radial-gradient(120% 100% at 50% 50%,#fff3c4,var(--yellow));border-color:var(--yellow);color:var(--deep)}
-.pad[data-s="go"] small{color:rgba(3,33,58,.75)}
-.pad[data-s="go"] .lights i{background:#1fd17a;box-shadow:0 0 18px #1fd17a}
-.pad[data-s="false"]{background:radial-gradient(120% 100% at 50% 50%,rgba(240,72,62,.45),rgba(2,21,38,.8));border-color:var(--red)}
-.pad[data-s="done"] b{color:var(--yellow)}
-.r-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.r-stats div{padding:12px 14px;border-radius:14px;background:rgba(2,21,38,.55)}
-.r-stats small{display:block;font-size:.8rem;color:rgba(234,251,253,.65)}
-.r-stats b{font-family:var(--display);font-size:1.15rem}
 
 /* ---------- запись ---------- */
 .start{text-align:center;padding:2vh 0 4vh}
@@ -412,7 +395,6 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
   .stat:nth-child(3){padding-left:0}
 }
 @media (max-width:860px){
-  .fun-grid{grid-template-columns:1fr}
   .rail{display:none}
   .water-block{grid-template-columns:1fr}
   .km-stick{position:relative;top:0}
@@ -431,7 +413,6 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
 @media (max-width:760px){
   .burn-out{grid-template-columns:1fr;justify-items:center}
   .burn-out .eq{width:100%}
-  .pad{min-height:210px}
   body{font-size:16px}
   .nav{display:none}
   .bar{justify-content:center}
@@ -504,7 +485,6 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
   <a href="#programs" data-to data-rail="programs"><span>Программы</span></a>
   <a href="#coaches" data-to data-rail="coaches"><span>Тренеры</span></a>
   <a href="#prices" data-to data-rail="prices"><span>Цены</span></a>
-  <a href="#fun" data-to data-rail="fun"><span>Проверь себя</span></a>
   <a href="#signup" data-to data-rail="signup"><span>Запись</span></a>
   <i class="rail-dot" aria-hidden="true"></i>
 </nav>
@@ -593,6 +573,34 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
           <div class="legend mini" id="paceParts"></div>
           <p class="fine">Расчёт при ровном темпе — это ориентир. Скорость на разных частях тренировки отличается.</p>
         </div>
+    <div class="card burn" id="burn">
+      <h3>Сколько калорий сжигается</h3>
+      <p>Выберите стиль и темп — увидите, сколько энергии уходит за тренировку.</p>
+      <div class="chips" id="bStyle" role="group" aria-label="Стиль плавания">
+        <button type="button" data-st="free" aria-pressed="true">Кроль</button>
+        <button type="button" data-st="breast" aria-pressed="false">Брасс</button>
+        <button type="button" data-st="back" aria-pressed="false">На спине</button>
+        <button type="button" data-st="fly" aria-pressed="false">Баттерфляй</button>
+      </div>
+      <div class="chips" id="bInt" role="group" aria-label="Темп">
+        <button type="button" data-in="0" aria-pressed="false">Спокойно</button>
+        <button type="button" data-in="1" aria-pressed="true">Тренировка</button>
+      </div>
+      <label class="rng">Вес: <b id="bKgV">70 кг</b><input type="range" id="bKg" min="30" max="130" value="70"></label>
+      <label class="rng">Время: <b id="bMinV">105 мин</b><input type="range" id="bMin" min="15" max="150" step="5" value="105"></label>
+      <div class="burn-out">
+        <div class="gauge-w">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs><linearGradient id="fireG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE08A"/><stop offset=".5" stop-color="#FF9F45"/><stop offset="1" stop-color="#F0483E"/></linearGradient></defs>
+            <circle class="bg" cx="100" cy="100" r="86"/><circle class="fg" id="bFg" cx="100" cy="100" r="86"/>
+          </svg>
+          <div class="burn-num" aria-live="polite"><b id="bK">0</b><small>ккал за тренировку</small></div>
+        </div>
+        <div class="eq" id="bEq"></div>
+      </div>
+      <p class="month" id="bMonth"></p>
+      <p class="fine">Оценка по таблице MET (Compendium of Physical Activities). Реальный расход у каждого свой.</p>
+    </div>
       </div>
     </div>
 
@@ -674,55 +682,10 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
     </div>
   </section>
 
-  <!-- ===================== 05 · ПРОВЕРЬ СЕБЯ ===================== -->
-  <section class="sec fun" id="fun" aria-labelledby="fnT">
-    <div class="sec-head">
-      <span class="sec-num">05</span>
-      <h2 class="title big-t" id="fnT"><span class="split" data-chars>Проверь себя</span></h2>
-      <span class="rope" aria-hidden="true"></span>
-      <p class="lead">Сколько энергии уходит за тренировку и насколько быстрая у вас реакция на старте. И попробуйте нажать на воду в любом месте страницы.</p>
-    </div>
-    <div class="fun-grid">
-      <div class="card burn" id="burn">
-        <h3>Калькулятор калорий</h3>
-        <div class="chips" id="bStyle" role="group" aria-label="Стиль плавания">
-          <button type="button" data-st="free" aria-pressed="true">Кроль</button>
-          <button type="button" data-st="breast" aria-pressed="false">Брасс</button>
-          <button type="button" data-st="back" aria-pressed="false">На спине</button>
-          <button type="button" data-st="fly" aria-pressed="false">Баттерфляй</button>
-        </div>
-        <div class="chips" id="bInt" role="group" aria-label="Темп">
-          <button type="button" data-in="0" aria-pressed="false">Спокойно</button>
-          <button type="button" data-in="1" aria-pressed="true">Тренировка</button>
-        </div>
-        <label class="rng">Вес: <b id="bKgV">70 кг</b><input type="range" id="bKg" min="30" max="130" value="70"></label>
-        <label class="rng">Время: <b id="bMinV">105 мин</b><input type="range" id="bMin" min="15" max="150" step="5" value="105"></label>
-        <div class="burn-out">
-          <div class="gauge-w">
-            <svg viewBox="0 0 200 200" aria-hidden="true">
-              <defs><linearGradient id="fireG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE08A"/><stop offset=".5" stop-color="#FF9F45"/><stop offset="1" stop-color="#F0483E"/></linearGradient></defs>
-              <circle class="bg" cx="100" cy="100" r="86"/><circle class="fg" id="bFg" cx="100" cy="100" r="86"/>
-            </svg>
-            <div class="burn-num" aria-live="polite"><b id="bK">0</b><small>ккал за тренировку</small></div>
-          </div>
-          <div class="eq" id="bEq"></div>
-        </div>
-        <p class="month" id="bMonth"></p>
-        <p class="fine">Оценка по таблице MET (Compendium of Physical Activities). Реальный расход у каждого свой.</p>
-      </div>
-      <div class="card react" id="react">
-        <h3>Стартовый сигнал</h3>
-        <p>Нажмите на дорожку и ждите команды. Как только загорится зелёный и прозвучит «Марш!», жмите снова (или пробел). Раньше времени — фальстарт.</p>
-        <button type="button" class="pad" id="rPad" data-s="idle"><span class="lights" id="rLights" aria-hidden="true"><i></i><i></i><i></i></span><b id="rSay">Старт</b><small id="rSub">нажмите, чтобы начать</small></button>
-        <div class="r-stats"><div><small>последняя</small><b id="rLast">—</b></div><div><small>рекорд</small><b id="rBest">—</b></div><div><small>уровень</small><b id="rRank">—</b></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== 06 · ЗАПИСЬ ===================== -->
+  <!-- ===================== 05 · ЗАПИСЬ ===================== -->
   <section class="sec signup" id="signup" aria-labelledby="suT">
     <div class="start">
-      <span class="sec-num">06</span>
+      <span class="sec-num">05</span>
       <h2 class="giant" id="suT"><span class="split" data-chars>На старт!</span></h2>
       <p class="lead">Напишите нам в Telegram — подберём группу и время из расписания. Первое занятие бесплатно.</p>
       <a class="tg mag" href="https://t.me/ordersecurity" target="_blank" rel="noopener">
@@ -767,7 +730,7 @@ details.q p{padding:0 4px 20px;color:rgba(234,251,253,.8);max-width:720px}
 <footer class="foot">
   <a class="brand big" href="#top" data-to>DT<span>swim</span></a>
   <nav aria-label="Нижнее меню">
-    <a href="#schedule" data-to>Расписание</a><a href="#programs" data-to>Программы</a><a href="#coaches" data-to>Тренеры</a><a href="#prices" data-to>Цены</a><a href="#fun" data-to>Проверь себя</a><a href="#signup" data-to>Запись</a>
+    <a href="#schedule" data-to>Расписание</a><a href="#programs" data-to>Программы</a><a href="#coaches" data-to>Тренеры</a><a href="#prices" data-to>Цены</a><a href="#signup" data-to>Запись</a>
     <a href="https://t.me/ordersecurity" target="_blank" rel="noopener">Telegram</a>
   </nav>
   <div class="capsw" role="group" aria-label="Цвет шапочки">Цвет шапочки:
@@ -1289,59 +1252,6 @@ $$('#bInt [data-in]').forEach(b => b.addEventListener('click', () => { bIn = +b.
 calcBurn();
 new IntersectionObserver((en, io) => { if (en[0].isIntersecting){ bSeen = true; calcBurn(); io.disconnect(); } }, { threshold: .35 }).observe($('#burn'));
 
-// стартовый сигнал: «На старт» → «Внимание» → случайная пауза → «Марш!»
-const RKEY = 'dtswim_react_best';
-const RANKS = [[180, 'Ракета'], [230, 'Чемпион'], [290, 'Отлично'], [380, 'Хорошо'], [1e9, 'Разминка']];
-const rankOf = ms => RANKS.find(r => ms < r[0])[1];
-let rState = 'idle', rT0 = 0, rTimers = [], rBest = null, actx = null;
-try { rBest = +localStorage.getItem(RKEY) || null; } catch (e) {}
-const pad = $('#rPad');
-function beep(f, d){
-  if (!actx) return;
-  try { const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
-    o.type = 'square'; o.frequency.value = f; g.gain.setValueAtTime(.07, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
-    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + d); } catch (e) {}
-}
-function rSet(st, say, sub, lights){
-  rState = st; pad.dataset.s = st; $('#rSay').textContent = say; $('#rSub').textContent = sub;
-  $$('#rLights i').forEach((l, i) => l.classList.toggle('on', i < lights));
-}
-function rStats(last){
-  if (last != null) $('#rLast').textContent = last + ' мс';
-  $('#rBest').textContent = rBest ? rBest + ' мс' : '—'; $('#rRank').textContent = rBest ? rankOf(rBest) : '—';
-}
-rStats();
-function rPress(){
-  if (rState === 'idle' || rState === 'done' || rState === 'false'){
-    try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {}
-    rTimers.forEach(clearTimeout);
-    rSet('ready', 'На старт!', 'приготовьтесь…', 1); beep(520, .12);
-    rTimers = [
-      setTimeout(() => { rSet('set', 'Внимание…', 'ждите сигнала', 2); beep(520, .12); }, 1000),
-      setTimeout(() => {
-        rSet('go', 'Марш!', 'жмите!', 3); rT0 = performance.now(); beep(980, .3);
-        if (window.DT_WATER) DT_WATER.ripple(innerWidth / 2, innerHeight / 2, 1.8);
-      }, 2000 + 800 + Math.random() * 2000)
-    ];
-    return;
-  }
-  if (rState === 'ready' || rState === 'set'){
-    rTimers.forEach(clearTimeout); beep(160, .4);
-    rSet('false', 'Фальстарт!', 'слишком рано — нажмите, чтобы попробовать снова', 0); return;
-  }
-  if (rState === 'go'){
-    const ms = Math.round(performance.now() - rT0), rec = !rBest || ms < rBest;
-    if (rec){ rBest = ms; try { localStorage.setItem(RKEY, ms); } catch (e) {} }
-    rSet('done', ms + ' мс', (rec ? 'Новый рекорд! ' : '') + rankOf(ms) + ' · нажмите, чтобы ещё раз', 0);
-    rStats(ms);
-  }
-}
-pad.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); rPress(); });
-pad.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); if (!e.repeat) rPress(); } });
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && !e.repeat && document.activeElement !== pad && ['ready', 'set', 'go'].includes(rState)){ e.preventDefault(); rPress(); }
-});
-
 /* ============ О ПРОЕКТЕ (портфолио) ============ */
 (function(){
   const btn = $('#aboutBtn'), dlg = $('#about'), card = $('#aboutCard'), credit = $('#credit');
@@ -1355,7 +1265,7 @@ document.addEventListener('keydown', e => {
     <div class="a-grid">
       <div><b>3D и погружение</b><span>Живая вода на WebGL и 3D-сцена на Three.js: капля «жидкого металла» перетекает от раздела к разделу, рядом всплывают очки, медаль и секундомер.</span></div>
       <div><b>Скролл-переходы</b><span>Плавная прокрутка, закреплённые сцены, горизонтальное расписание, стопка карточек тренеров, буквы, которые собираются и разлетаются.</span></div>
-      <div><b>Полезные инструменты</b><span>Калькуляторы стоимости, темпа и калорий, игра на реакцию, календарь расписания, заявка в Telegram, дневник с уровнями. По воде можно «кидать круги» кликом.</span></div>
+      <div><b>Полезные инструменты</b><span>Калькуляторы стоимости, темпа и калорий, календарь расписания, заявка в Telegram, дневник с уровнями. По воде от клика расходятся круги.</span></div>
       <div><b>Для телефона</b><span>Адаптивная вёрстка, нижнее меню, качество воды подстраивается под устройство.</span></div>
     </div>
     <ul class="a-tech"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>WebGL / GLSL</li><li>Three.js</li><li>GSAP ScrollTrigger</li><li>Lenis</li><li>Один файл</li></ul>
@@ -1639,23 +1549,11 @@ void main(){
 })();
 window.DT_WATER = WATER;   // 3D-сцена берёт отсюда глубину и скорость прокрутки
 
-/* ============ ВОДА ОТВЕЧАЕТ НА КАСАНИЯ: клик — круги, мышь — лёгкий след ============ */
+/* ============ ВОДА ОТВЕЧАЕТ НА КАСАНИЯ: от клика расходятся круги ============ */
 document.addEventListener('pointerdown', e => {
   if (e.target.closest('a,button,input,select,textarea,label,summary')) return;
   WATER.ripple(e.clientX, e.clientY, 1);
 }, { passive: true });
-if (fine){
-  let lx = 0, ly = 0, lt = 0;
-  addEventListener('pointermove', e => {
-    const now = performance.now(); if (now - lt < 120 || Math.hypot(e.clientX - lx, e.clientY - ly) < 70) return;
-    lt = now; lx = e.clientX; ly = e.clientY; WATER.ripple(e.clientX, e.clientY, .3);
-  }, { passive: true });
-}
-setTimeout(() => {                                     // подсказка — один раз
-  let seen = false; try { seen = !!localStorage.getItem('dtswim_hint'); localStorage.setItem('dtswim_hint', '1'); } catch (e) {}
-  if (!seen && WATER.ok) toast('Нажмите на воду — по ней пойдут круги');
-}, 4500);
-
 /* =====================================================================
    ПРОКРУТКА И ПЕРЕХОДЫ: Lenis (плавный скролл) + GSAP ScrollTrigger.
    Если библиотеки не загрузились — сайт остаётся полностью рабочим и видимым.
@@ -1679,7 +1577,7 @@ setTimeout(() => {                                     // подсказка —
     prog.style.transform = `scaleX(${max > 0 ? clamp01(y / max) : 0})`;
   }
   // текущий раздел → подсветка меню, точки сбоку и нижнего меню
-  const SECS = ['schedule', 'programs', 'coaches', 'prices', 'fun', 'signup'];
+  const SECS = ['schedule', 'programs', 'coaches', 'prices', 'signup'];
   let curSec = '';
   function markSection(id){
     if (id === curSec) return; curSec = id;
@@ -1729,7 +1627,7 @@ setTimeout(() => {                                     // подсказка —
 
   let lenis = null;
   if (window.Lenis){
-    lenis = new Lenis({ lerp: .085, wheelMultiplier: .95, smoothWheel: true, syncTouch: false });
+    lenis = new Lenis({ lerp: .07, wheelMultiplier: .9, smoothWheel: true, syncTouch: false });
     window.DT_LENIS = lenis;
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(t => lenis.raf(t * 1000));
@@ -1832,9 +1730,12 @@ setTimeout(() => {                                     // подсказка —
   rise('#builder', { y: 60, rx: 0 }); rise('details.q', { y: 30, rx: 0 });
 
   /* ---------- блоки выплывают из глубины: наклон и масштаб идут за прокруткой ---------- */
-  $$('.podium, .tech-grid, .water-flow, .fun-grid, .dt-row, .sign-grid').forEach(el => {
+  // уходя вверх, блок отклоняется назад и гаснет — будто проплывает мимо; всё обратимо при прокрутке назад
+  $$('.podium, .tech-grid, .water-flow, .dt-row, .sign-grid, .faq-wrap, .flow').forEach(el => {
     gsap.fromTo(el, { rotationX: 22, y: 100, scale: .92, transformPerspective: 1400, transformOrigin: '50% 100%' },
-      { rotationX: 0, y: 0, scale: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'top 58%', scrub: .7 } });
+      { rotationX: 0, y: 0, scale: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'top 58%', scrub: 1 } });
+    gsap.fromTo(el, { rotationX: 0, scale: 1, opacity: 1 }, { rotationX: -16, scale: .94, opacity: .25, transformPerspective: 1400, transformOrigin: '50% 0%', ease: 'none', immediateRender: false,
+      scrollTrigger: { trigger: el, start: 'bottom 38%', end: 'bottom -5%', scrub: 1 } });
   });
   rise('#d-core .ex');
   // вкладка «Сила» скрыта, пока её не открыли — анимируем при первом открытии
@@ -1974,8 +1875,8 @@ setTimeout(() => {                                     // подсказка —
 /* =====================================================================
    3D-СЦЕНА (Three.js). Главный герой — «жидкий металл»: перламутровая
    капля, которая дышит и переливается. На первом экране она крупная,
-   дальше перетекает от раздела к разделу; в момент перехода деформируется,
-   камера делает лёгкий рывок, и вверх уходит волна пузырей.
+   дальше перетекает от раздела к разделу. Переходы целиком идут за прокруткой:
+   капля деформируется, камера мягко «вдыхает», поток пузырей усиливается.
    Рядом с разделами — металлические предметы: очки, медаль, секундомер.
    ===================================================================== */
 import * as THREE from 'three';
@@ -2070,8 +1971,7 @@ vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); 
     { el: '#programs', x: -.45, y: -.2, s: .38,  mx: -.46, my: .2,  ms: .34 },
     { el: '#coaches',  x: -.44, y: .05, s: .4,   mx: -.46, my: .25, ms: .34 },
     { el: '#prices',   x: .43,  y: .05, s: .4,   mx: .46,  my: .2,  ms: .34 },
-    { el: '#fun',      x: -.45, y: -.25, s: .38, mx: -.48, my: .3,  ms: .3 },
-    { el: '#signup',   x: .34,  y: -.05, s: .6,  mx: .3,   my: .28, ms: .45 }
+    { el: '#signup',   x: .44,  y: .22, s: .42, mx: .44,  my: .32, ms: .3 }
   ].map(p => ({ ...p, node: p.el && document.querySelector(p.el), at: 0 }));
 
   /* ---------- металлические предметы рядом с разделами ---------- */
@@ -2151,19 +2051,8 @@ vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); 
   const bd = Array.from({ length: BN }, () => ({ x: Math.random() - .5, y: Math.random(), z: lerp(-6, 4, Math.random()), r: .03 + Math.random() ** 3 * .1, v: .5 + Math.random() * .7, w: Math.random() * TAU }));
   const dummy = new THREE.Object3D();
 
-  /* ---------- переход между разделами: волна пузырей и рывок камеры ---------- */
-  const BURST_N = small ? 36 : 70;
-  const burst = new THREE.InstancedMesh(bubbles.geometry, bubbles.material, BURST_N);
-  burst.frustumCulled = false; burst.renderOrder = 4; scene.add(burst);
-  const bu = Array.from({ length: BURST_N }, () => ({ life: 0, x: 0, y: 0, z: 0, v: 0, r: 0, w: 0 }));
-  let punch = 0, poke = 0;
+  let poke = 0;
   addEventListener('pointerdown', () => { poke = 1; }, { passive: true });   // капля вздрагивает от касания
-  function fireBurst(dir){
-    punch = 1;
-    if (WATER.ripple) WATER.ripple(innerWidth / 2, innerHeight * (dir > 0 ? .7 : .3), 1.4);   // по воде проходит волна
-    bu.forEach(b => { b.life = 1 + Math.random() * .6; b.x = Math.random() - .5; b.z = lerp(-4, 6, Math.random());
-      b.y = dir > 0 ? -.65 - Math.random() * .5 : .65 + Math.random() * .5; b.v = (.9 + Math.random() * .9) * dir; b.r = .04 + Math.random() ** 2 * .16; b.w = Math.random() * TAU; });
-  }
 
   /* ---------- размеры, мышь, цвет шапочки ---------- */
   let dpr = Math.min(devicePixelRatio || 1, small ? 1.25 : 1.5);   // больше не нужно: вода и 3D рисуются в два слоя
@@ -2183,7 +2072,7 @@ vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); 
   }
 
   /* ---------- кадр ---------- */
-  let prevNow = performance.now(), prevSy = scrollPos(), fSum = 0, fN = 0, started = false, bT = 0, amp = .12;
+  let prevNow = performance.now(), prevSy = scrollPos(), fSum = 0, fN = 0, started = false, bT = 0, amp = .12, trS = 0;
   const kPrev = PATH.map(() => 0), bs = { x: 0, y: 0, s: 1 };
   function frame(now){
     if (document.hidden) return;
@@ -2196,9 +2085,6 @@ vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); 
     const depth = WATER.depth || 0, vel = Math.max(-1, Math.min(1, WATER.vel || 0));
     const dive = sstep(depth, .05, .17), under = sstep(depth, .1, .45);
     const k = 1 - Math.exp(-dt * 3); ptr.x += (ptr.tx - ptr.x) * k; ptr.y += (ptr.ty - ptr.y) * k;
-    punch *= Math.exp(-dt * 3.2);
-    cam.position.set(ptr.x * .7, ptr.y * .45, 12 - punch * .9); cam.lookAt(0, 0, 0);
-    const fov = 35 + punch * 5; if (Math.abs(cam.fov - fov) > .01){ cam.fov = fov; cam.updateProjectionMatrix(); }
     const narrow = cam.aspect < .9, ih = innerHeight;
 
     // свет и туман: под водой темнее и синее
@@ -2212,13 +2098,18 @@ vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); 
       const kk = sstep(sy, PATH[i].at - ih, PATH[i].at - ih * .4), q = g(i);
       bx = lerp(bx, q.x, kk); by = lerp(by, q.y, kk); bsc = lerp(bsc, q.s, kk);
       const bump = Math.sin(PI * kk); trans = Math.max(trans, bump); arc += bump * (i % 2 ? 1 : -1);
-      if ((kk > .5) !== (kPrev[i] > .5) && !reduce && sy > ih * .5) fireBurst(kk > kPrev[i] ? 1 : -1);
+      // середина перехода — по воде проходит одна мягкая волна
+      if ((kk > .5) !== (kPrev[i] > .5) && !reduce && sy > ih * .5 && WATER.ripple) WATER.ripple(innerWidth / 2, ih * .62, .9);
       kPrev[i] = kk;
     }
+    // камера чуть «вдыхает» на переходе — плавно и обратимо, без рывка
+    trS += (trans - trS) * (1 - Math.exp(-dt * 5));
+    cam.position.set(ptr.x * .7, ptr.y * .45, 12 - trS * .7); cam.lookAt(0, 0, 0);
+    const fov = 35 + trS * 3.5; if (Math.abs(cam.fov - fov) > .01){ cam.fov = fov; cam.updateProjectionMatrix(); }
     const BZ = -1, BH = visH(BZ), BW = BH * cam.aspect, sm = 1 - Math.exp(-dt * 8);
     bs.x += (bx * BW - bs.x) * sm; bs.y += ((by - arc * .08) * BH - bs.y) * sm; bs.s += (bsc * BH * .24 - bs.s) * sm;
     blob.position.set(bs.x + Math.sin(t * .4) * .1, bs.y + Math.sin(t * .6) * .12, BZ);
-    blob.scale.setScalar(bs.s * (1 + punch * .06));
+    blob.scale.setScalar(bs.s);
     blob.rotation.set(Math.sin(t * .2) * .3 - ptr.y * .4, t * .12 + ptr.x * .6, arc * .4);
     poke *= Math.exp(-dt * 2.5);
     amp += ((.1 + trans * .32 + Math.abs(vel) * .14 + poke * .3) - amp) * (1 - Math.exp(-dt * 4));
@@ -2250,25 +2141,15 @@ vec3 dsp(vec3 p){ vec3 n = normalize(p); return n * (1. + uAmp * fld(n * 1.3)); 
       const show = sstep(depth, .08, .22);
       bd.forEach((b, i) => {
         const H = visH(b.z), Wd = H * cam.aspect;
-        if (!reduce) b.y += (b.v * (1 + Math.abs(vel) * 4) * dt) / H + dsy / ih * .6;
+        if (!reduce) b.y += (b.v * (1 + Math.abs(vel) * 4 + trS * 4) * dt) / H + dsy / ih * .6;   // на переходе поток пузырей сильнее
         b.y -= Math.floor(b.y);
         dummy.position.set(b.x * Wd * 1.1 + Math.sin(t * 1.3 + b.w) * .12, (b.y - .5) * H * 1.2, b.z);
         dummy.rotation.set(0, 0, 0);
-        dummy.scale.set(b.r * show, b.r * show * (1 + .08 * Math.sin(t * 6 + b.w)), b.r * show);
+        const rr = b.r * show * (1 + trS * .5); dummy.scale.set(rr, rr * (1 + .08 * Math.sin(t * 6 + b.w)), rr);
         dummy.updateMatrix(); bubbles.setMatrixAt(i, dummy.matrix);
       });
       bubbles.instanceMatrix.needsUpdate = true;
     }
-
-    // волна пузырей после перехода
-    let alive = false;
-    bu.forEach((b, i) => {
-      if (b.life > 0){ b.life -= dt * .9; b.y += b.v * dt; alive = true; }
-      const H = visH(b.z), Wd = H * cam.aspect, r = b.life > 0 ? b.r * Math.min(1, b.life * 2) : 0;
-      dummy.position.set(b.x * Wd * 1.15 + Math.sin(t * 2 + b.w) * .2, b.y * H, b.z); dummy.rotation.set(0, 0, 0); dummy.scale.setScalar(r);
-      dummy.updateMatrix(); burst.setMatrixAt(i, dummy.matrix);
-    });
-    burst.visible = alive; if (alive) burst.instanceMatrix.needsUpdate = true;
 
     renderer.render(scene, cam);
     if (!started){ started = true; document.documentElement.classList.add('has-3d'); }
